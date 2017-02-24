@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import telebot
 from telebot import types
+
+from datetime import datetime, date, time
 import time
 
 import sqlite3
@@ -8,14 +10,12 @@ import re
 import hashlib
 
 import config
-
+import scheduleCreator
 commands = {  # command description used in the "help" command
               'start': 'Get used to the bot',
-              'help': 'Gives you information about the available commands'
+              'help': 'Gives you information about the available commands',
+              'registration': ''
 }
-
-def createSchedule(tag, day, type):
-    print("foobar")
 
 bot = telebot.TeleBot(config.token)
 #bot.set_update_listener(listener)  # register listener
@@ -32,6 +32,12 @@ dateSelect.row("Пятница","Суббота")
 
 
 #registration
+
+# handle the "/registration" command
+@bot.message_handler(commands=['registration'])
+def command_registration(m):
+    registration("registration:stage 1: none", m.chat.id, m.chat.first_name, m.chat.username)
+    
 @bot.callback_query_handler(func=lambda call: True)
 def callback_registration(call):
     callbackData = re.split(r':', call.data)
@@ -88,16 +94,21 @@ def registration(data, cid, name, username):
     elif stage == "stage 4":
         groupId = callbackData[2]
         
-        cur.execute('SELECT tag FROM organizations WHERE id=(?)', [groupId])
+        cur.execute('SELECT tag, studGroup  FROM organizations WHERE id=(?)', [groupId])
         row = cur.fetchall()
-        
-        cur.execute('INSERT INTO users VALUES(?,?,?,?)',(cid, name, username, str(row[0][0])))
+
+        cur.execute('SELECT * FROM users WHERE id = (?)', [cid])
+        user = cur.fetchone()
+        if user:
+            cur.execute('UPDATE users SET scheduleTag = (?) WHERE id = (?)',(str(row[0][0]), cid))
+        else:
+            cur.execute('INSERT INTO users VALUES(?,?,?,?)',(cid, name, username, str(row[0][0])))
         con.commit()
         con.close()
-        bot.send_message(cid, "Отлично, вы зарегистрировались", reply_markup=dateSelect)
+        bot.send_message(cid, "Отлично, вы зарегистрировались, ваша группа: " + row[0][1] + "\nЕсли вы ошиблись, то просто введиде команду /registration и измените данные", reply_markup=dateSelect)
+        command_help(m)
     else:
-        print("foobar")
-    
+        print("unknown stage")
     
 # handle the "/start" command
 @bot.message_handler(commands=['start'])
@@ -108,7 +119,6 @@ def command_start(m):
     try:
         con = sqlite3.connect('base/base.db')
         cur = con.cursor()
-        #cur.execute("CREATE TABLE users(id INT, name TEXT, username TEXT, hash TEXT);")
     except sqlite3.Error:
         sys.exit(1)
 
@@ -117,10 +127,8 @@ def command_start(m):
     if user:
         bot.send_message(cid, "Вы уже добавлены в базу данных", reply_markup=dateSelect)
     else:
-        #groupSelect = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True, one_time_keyboard=True)
-        #groupSelect.row("1 Группа", "2 Группа")
-        registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
-        
+        bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
+        registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)  
         #command_help(m)
 
 # help page
@@ -135,28 +143,37 @@ def command_help(m):
 
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def response_msg(m):
-    if(m.text == "1 Группа" or m.text == "2 Группа"):
-        try:
-            con = sqlite3.connect('base/base.db')
-            cur = con.cursor()
-            cur.execute('UPDATE users SET hash = (?) WHERE id = (?)',(hashlib.sha256(m.text.encode('utf-8')).hexdigest(), m.chat.id))
-            con.commit()
-            con.close()
-        except sqlite3.Error:
-            sys.exit(1)
-        bot.send_message(m.chat.id, "Регистрация закончена", reply_markup=dateSelect)
-        
-    elif m.text in config.ScheduleType:
-        if config.ScheduleType[m.text] == "Today":
-                bot.send_message(m.chat.id, "Сегодня", reply_markup=dateSelect)
-        elif config.ScheduleType[m.text] == "All week":
-                bot.send_message(m.chat.id, "Вся неделя", reply_markup=dateSelect)
-                for day in config.daysOfWeek:
-                    print(day)
+    cid = m.chat.id
+    if m.text in config.ScheduleType:
+        if(m.text == "Вся неделя"):
+            days = config.ScheduleType[m.text]
+        elif(m.text == "Сегодня"):
+            today = datetime.now()
+
+            if(datetime.weekday(today) == 7):
+                days = [config.daysOfWeek[(datetime.weekday(today)+1)%7]]
+            else:
+                days = [config.daysOfWeek[datetime.weekday(today)]]
         else:
-                bot.send_message(m.chat.id, "1 - Инженерная и компьютерная графика лаб. 1-131\n 2 - Неорган. химия лаб. 1-131\n 3 - Неорган. химия лаб. 3-455", reply_markup=dateSelect)
+            days = [config.ScheduleType[m.text]]
+            
+        for day in days:
+            try:
+                con = sqlite3.connect('base/base.db')
+                cur = con.cursor()
+                cur.execute('SELECT scheduleTag FROM users WHERE id = (?)', [cid])
+                user = cur.fetchone()
+                if user:
+                    result = scheduleCreator.createSchedule_text(user[0],day)
+                    for schedule in result:
+                        bot.send_message(cid, schedule, reply_markup=dateSelect)
+                else:
+                    bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
+                    registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
+            except:
+                bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
     else:
-        bot.send_message(m.chat.id, "Неизвестная команда", reply_markup=dateSelect)
+        bot.send_message(cid, "Неизвестная команда", reply_markup=dateSelect)
             
 bot.polling()
 

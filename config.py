@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 token = ''
 
-daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Hello", "Friday", "Saturday"]
+daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
 ScheduleType = {
     "Понедельник": daysOfWeek[0],
@@ -11,5 +11,14 @@ ScheduleType = {
     "Пятница": daysOfWeek[4],
     "Суббота": daysOfWeek[5],
     "Сегодня": "Today",
-	"Вся неделя": "All week"
+    "Вся неделя": daysOfWeek
+}
+
+daysOfWeek_rus = {
+	daysOfWeek[0]: "Понедельник",
+    daysOfWeek[1]: "Вторник",
+    daysOfWeek[2]: "Среда",
+    daysOfWeek[3]: "Четверг",
+    daysOfWeek[4]: "Пятница",
+    daysOfWeek[5]: "Суббота",
 }
