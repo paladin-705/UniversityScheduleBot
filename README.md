@@ -53,7 +53,7 @@ python3 UniversityScheduleBot.py &
 │id │ organization │ studGroup │ tag │
 ├───┼──────────────┼───────────┼─────┤
 Описание полей:
-  id - автоинкрементируемое ключ таблицы
+  id - автоинкрементируемый ключ таблицы
   organization - название ВУЗа
   studGroup - группа
   tag - хэш от конкатенации строк organization и studGroup, в данном случае sha256
@@ -63,7 +63,7 @@ python3 UniversityScheduleBot.py &
 │id │ tag │ day │ number │ type │ startTime │ endTime │ title │ classroom │ lecturer │
 ├───┼─────┼─────┼────────┼──────┼───────────┼─────────┼───────┼───────────┼──────────┤
 Описание полей:
-  id - автоинкрементируемое ключ таблицы
+  id - автоинкрементируемый ключ таблицы
   tag - указывает на принадлежность данной строки определённой группе, соответсвует полю tag из таблицы organization
   day - принимает значения: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
   number - порядковый номер занятия
