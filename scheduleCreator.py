@@ -39,14 +39,14 @@ def createSchedule_text(tag, day):
             schedule += str(row[0]) + " пара:\n"
             if(index != len(data) - 1):
                 if data[index + 1][0] == row[0]:
-                    schedule += '{0:20} {1:10} {2}\n'.format(str(row[1]), str(row[2]), printType(row[3]))
+                    schedule += '{0} {1} {2}\n'.format(str(row[1]), str(row[2]), printType(row[3]))
                     index+=1
                     row = data[index]
-                    schedule += '{0:20} {1:10} {2}\n'.format(str(row[1]), str(row[2]), printType(row[3]))
+                    schedule += '{0} {1} {2}\n'.format(str(row[1]), str(row[2]), printType(row[3]))
                 else:
-                    schedule += '{0:20} {1:10} {2}\n'.format(str(row[1]), str(row[2]), printType(row[3]))
+                    schedule += '{0} {1} {2}\n'.format(str(row[1]), str(row[2]), printType(row[3]))
             else:
-                schedule += '{0:20} {1:10} {2}\n'.format(str(row[1]), str(row[2]), printType(row[3]))
+                schedule += '{0} {1} {2}\n'.format(str(row[1]), str(row[2]), printType(row[3]))
 
             schedule += "------------\n"
             index+=1

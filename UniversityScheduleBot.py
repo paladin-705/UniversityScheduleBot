@@ -11,14 +11,15 @@ import hashlib
 
 import config
 import scheduleCreator
+
 commands = {  # command description used in the "help" command
-              'start': 'Get used to the bot',
-              'help': 'Gives you information about the available commands',
-              'registration': ''
+              'start': 'Стартовое сообщение и предложение зарегистрироваться',
+              'help': 'Информация о боте и список доступных команд',
+              'registration': 'Выбор ВУЗа, факультета и группы для вывода расписания',
+              'send_report <сообщение>': 'Отправить информацию об ошибке или что то ещё' 
 }
 
 bot = telebot.TeleBot(config.token)
-#bot.set_update_listener(listener)  # register listener
 
 #keyboard
 dateSelect = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True, one_time_keyboard=False)
@@ -55,66 +56,65 @@ def registration(data, cid, name, username):
     try:
         con = sqlite3.connect('base/base.db')
         cur = con.cursor()
-    except sqlite3.Error:
-        sys.exit(1)
-    
-    if stage == "stage 1":
-        keyboard = types.InlineKeyboardMarkup()
-        
-        cur.execute('SELECT DISTINCT organization FROM organizations')
-        result = cur.fetchall()
-        for row in result:
-            callback_button = types.InlineKeyboardButton(text=str(row[0]), callback_data="registration:stage 2:{0}".format(str(row[0])))
-            keyboard.add(callback_button)
-        
-        bot.send_message(cid, "Выберите университет:", reply_markup=keyboard)
-    elif stage == "stage 2":
-        organization = callbackData[2]
-        keyboard = types.InlineKeyboardMarkup()
-        
-        cur.execute('SELECT DISTINCT faculty FROM organizations WHERE organization=(?)', [organization])
-        result = cur.fetchall()
-        for row in result:
-            callback_button = types.InlineKeyboardButton(text=str(row[0]), callback_data="registration:stage 3:{0}:{1}".format(organization, str(row[0])))
-            keyboard.add(callback_button)
-        
-        bot.send_message(cid, "Выберите факультет:", reply_markup=keyboard)
-        
-    elif stage == "stage 3":
-        organization = callbackData[2]
-        faculty = callbackData[3]
-        keyboard = types.InlineKeyboardMarkup()
-        cur.execute('SELECT id, studGroup FROM organizations WHERE organization=(?) AND faculty=(?)', [organization, faculty])
-        result = cur.fetchall()
-        for row in result:
-            callback_button = types.InlineKeyboardButton(text=str(row[1]), callback_data="registration:stage 4:{0}".format(str(row[0])))
-            keyboard.add(callback_button)
-        
-        bot.send_message(cid, "Выберите группу:", reply_markup=keyboard)
-    elif stage == "stage 4":
-        groupId = callbackData[2]
-        
-        cur.execute('SELECT tag, studGroup  FROM organizations WHERE id=(?)', [groupId])
-        row = cur.fetchall()
 
-        cur.execute('SELECT * FROM users WHERE id = (?)', [cid])
-        user = cur.fetchone()
-        if user:
-            cur.execute('UPDATE users SET scheduleTag = (?) WHERE id = (?)',(str(row[0][0]), cid))
+        if stage == "stage 1":
+            keyboard = types.InlineKeyboardMarkup()
+                
+            cur.execute('SELECT DISTINCT organization FROM organizations')
+            result = cur.fetchall()
+            for row in result:
+                callback_button = types.InlineKeyboardButton(text=str(row[0]), callback_data="registration:stage 2:{0}".format(str(row[0])))
+                keyboard.add(callback_button)
+                
+            bot.send_message(cid, "Выберите университет:", reply_markup=keyboard)
+        elif stage == "stage 2":
+            organization = callbackData[2]
+            keyboard = types.InlineKeyboardMarkup()
+            
+            cur.execute('SELECT DISTINCT faculty FROM organizations WHERE organization=(?)', [organization])
+            result = cur.fetchall()
+            for row in result:
+                callback_button = types.InlineKeyboardButton(text=str(row[0]), callback_data="registration:stage 3:{0}:{1}".format(organization, str(row[0])))
+                keyboard.add(callback_button)
+            
+            bot.send_message(cid, "Выберите факультет:", reply_markup=keyboard) 
+        elif stage == "stage 3":
+            organization = callbackData[2]
+            faculty = callbackData[3]
+            keyboard = types.InlineKeyboardMarkup()
+            cur.execute('SELECT id, studGroup FROM organizations WHERE organization=(?) AND faculty=(?)', [organization, faculty])
+            result = cur.fetchall()
+            for row in result:
+                callback_button = types.InlineKeyboardButton(text=str(row[1]), callback_data="registration:stage 4:{0}".format(str(row[0])))
+                keyboard.add(callback_button)
+            
+            bot.send_message(cid, "Выберите группу:", reply_markup=keyboard)
+        elif stage == "stage 4":
+            groupId = callbackData[2]
+            
+            cur.execute('SELECT tag, studGroup  FROM organizations WHERE id=(?)', [groupId])
+            row = cur.fetchall()
+
+            cur.execute('SELECT * FROM users WHERE id = (?)', [cid])
+            user = cur.fetchone()
+            if user:
+                cur.execute('UPDATE users SET scheduleTag = (?) WHERE id = (?)',(str(row[0][0]), cid))
+            else:
+                cur.execute('INSERT INTO users VALUES(?,?,?,?)',(cid, name, username, str(row[0][0])))
+            con.commit()
+            con.close()
+            bot.send_message(cid, "Отлично, вы зарегистрировались, ваша группа: " + row[0][1] + "\nЕсли вы ошиблись, то просто введиде команду /registration и измените данные", reply_markup=dateSelect)
         else:
-            cur.execute('INSERT INTO users VALUES(?,?,?,?)',(cid, name, username, str(row[0][0])))
-        con.commit()
-        con.close()
-        bot.send_message(cid, "Отлично, вы зарегистрировались, ваша группа: " + row[0][1] + "\nЕсли вы ошиблись, то просто введиде команду /registration и измените данные", reply_markup=dateSelect)
-        command_help(m)
-    else:
-        print("unknown stage")
+            print("unknown stage")
+    except:
+        bot.send_message(cid, "Сдучилось что-то странное, попробуйте начать сначала, введя команду /registration")
     
 # handle the "/start" command
 @bot.message_handler(commands=['start'])
 def command_start(m):
     cid = m.chat.id
-
+    command_help(m)
+    
     #bd
     try:
         con = sqlite3.connect('base/base.db')
@@ -129,18 +129,38 @@ def command_start(m):
     else:
         bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
         registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)  
-        #command_help(m)
 
 # help page
 @bot.message_handler(commands=['help'])
 def command_help(m):
     cid = m.chat.id
-    help_text = "The following commands are available: \n"
-    for key in commands:  # generate help text out of the commands dictionary defined at the top
+    help_text = "Доступны следующие команды: \n"
+    for key in commands:
         help_text += "/" + key + ": "
         help_text += commands[key] + "\n"
-    bot.send_message(cid, help_text, reply_markup=dateSelect)  # send the generated help page
+    bot.send_message(cid, help_text, reply_markup=dateSelect)
 
+# send_report handler
+@bot.message_handler(commands=['send_report'])
+def command_send_report(m):
+    cid = m.chat.id
+    data = (m.text).split("/send_report")
+    
+    if data[1] != '':
+        report = data[1]
+        try:
+            con = sqlite3.connect('base/base.db')
+            cur = con.cursor()
+            cur.execute('INSERT INTO reports (user_id, report) VALUES(?, ?)', [cid, report])
+            con.commit()
+            
+            bot.send_message(cid, "Сообщение принято")
+        except:
+            bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново", reply_markup=dateSelect)
+    else:
+        bot.send_message(cid, "Вы отправили пустую строку", reply_markup=dateSelect)
+        
+# text message handler
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def response_msg(m):
     cid = m.chat.id
@@ -150,7 +170,7 @@ def response_msg(m):
         elif(m.text == "Сегодня"):
             today = datetime.now()
 
-            if(datetime.weekday(today) == 7):
+            if(datetime.weekday(today) == 6):
                 days = [config.daysOfWeek[(datetime.weekday(today)+1)%7]]
             else:
                 days = [config.daysOfWeek[datetime.weekday(today)]]
@@ -174,6 +194,6 @@ def response_msg(m):
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
     else:
         bot.send_message(cid, "Неизвестная команда", reply_markup=dateSelect)
-            
+
 bot.polling()
 
