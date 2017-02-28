@@ -4,7 +4,7 @@ import os
 
 try:
     os.makedirs('base')
-	os.makedirs('log')
+    os.makedirs('log')
 except OSError:
     pass
 	
