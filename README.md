@@ -66,9 +66,9 @@ python3 UniversityScheduleBot.py &
   id - автоинкрементируемое ключ таблицы
   tag - указывает на принадлежность данной строки определённой группе, соответсвует полю tag из таблицы organization
   day - принимает значения: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
-  number - порядковый номер пары
+  number - порядковый номер занятия
   type - принимает значение 0(по числителю) 1(по знаменателю) 2(каждую неделю)
-  startTime и endTime - время начала и конца пары
+  startTime и endTime - время начала и конца занятия
   title - название
   classroom - кабинет
   lecturer - преподаватель
