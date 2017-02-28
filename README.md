@@ -1,4 +1,4 @@
-# UniversityScheduleBot
+UniversityScheduleBot
 =========================
 Бот для Telegram показывающий расписание занятий
 
