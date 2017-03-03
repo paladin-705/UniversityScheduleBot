@@ -1,6 +1,6 @@
 UniversityScheduleBot
 =========================
-Бот для Telegram показывающий расписание занятий
+Бот для Telegram показывающий расписание занятий. Вы можете добавить его себе в Telegram, перейдя по ссылке: [@UniversityScheduleBot](http://telegram.me/UniversityScheduleBot)
 
 Структура репозитория
 ------------
