@@ -52,7 +52,7 @@ def addToDb(tag, day, number, rType, timeStart, timeEnd, cell_value):
             
         if title != "":
             
-            con = sqlite3.connect('base/base.db')
+            con = sqlite3.connect(config.db_path)
             cur = con.cursor()
             cur.execute("INSERT INTO schedule(tag, day, number, type, startTime, endTime, title, classroom, lecturer) VALUES(?,?,?,?,?,?,?,?,?);",(tag, day, number, rType, timeStart, timeEnd, title, classroom, lector))
             con.commit()
@@ -86,7 +86,7 @@ for index in range(file.nsheets):
             continue
         
         try:
-            con = sqlite3.connect('base/base.db')
+            con = sqlite3.connect(config.db_path)
             cur = con.cursor()
             cur.execute("INSERT INTO organizations(organization, faculty, studGroup, tag) VALUES(?,?,?,?);",(organization, faculty, group, tag))
             con.commit()

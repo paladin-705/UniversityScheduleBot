@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sqlite3
+import config
 import os
 
 try:
@@ -9,7 +10,7 @@ except OSError:
     pass
 	
 try:
-    con = sqlite3.connect('base/base.db')
+    con = sqlite3.connect(config.db_path)
     cur = con.cursor()
     cur.execute("CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT, username TEXT, scheduleTag TEXT);")
     cur.execute("CREATE TABLE organizations(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, organization TEXT, faculty TEXT, studGroup TEXT, tag TEXT);")

@@ -3,7 +3,7 @@ import telebot
 from telebot import types
 
 from datetime import datetime, date, time
-import time
+#import time
 
 import sqlite3
 import re
@@ -54,7 +54,7 @@ def registration(data, cid, name, username):
     stage = callbackData[1]
 
     try:
-        con = sqlite3.connect('base/base.db')
+        con = sqlite3.connect(config.db_path)
         cur = con.cursor()
 
         if stage == "stage 1":
@@ -117,7 +117,7 @@ def command_start(m):
     
     #bd
     try:
-        con = sqlite3.connect('base/base.db')
+        con = sqlite3.connect(config.db_path)
         cur = con.cursor()
     except sqlite3.Error:
         sys.exit(1)
@@ -139,6 +139,9 @@ def command_help(m):
         help_text += "/" + key + ": "
         help_text += commands[key] + "\n"
     bot.send_message(cid, help_text, reply_markup=dateSelect)
+    
+    help_text = 'Описание кнопок:\nКнопка "Сегодня", как это ни странно выводит расписание на сегодняшний день, причём с учётом типа недели (числитель/знаменатель), но есть один нюанс: если сегодня воскресенье или время больше чем 21:30, то выводится расписание на следующий день\n'
+    bot.send_message(cid, help_text, reply_markup=dateSelect)
 
 # send_report handler
 @bot.message_handler(commands=['send_report'])
@@ -149,7 +152,7 @@ def command_send_report(m):
     if data[1] != '':
         report = data[1]
         try:
-            con = sqlite3.connect('base/base.db')
+            con = sqlite3.connect(config.db_path)
             cur = con.cursor()
             cur.execute('INSERT INTO reports (user_id, report) VALUES(?, ?)', [cid, report])
             con.commit()
@@ -165,12 +168,15 @@ def command_send_report(m):
 def response_msg(m):
     cid = m.chat.id
     if m.text in config.ScheduleType:
+        week_type = -1                          #По умолчанию week_type равен -1 и при таком значении будут выводится все занятия, т.е и для чётных и для нечётных недель
+        
         if(m.text == "Вся неделя"):
             days = config.ScheduleType[m.text]
         elif(m.text == "Сегодня"):
             today = datetime.now()
-
-            if(datetime.weekday(today) == 6):
+            week_type = today.isocalendar()[1]%2            #если запрашивается расписание на сегодняшний день, то week_type равен остатку от деления на 2 номера недели в году, т.е он определяет чётная она или нечётная
+            
+            if(datetime.weekday(today) == 6 or today.time() >= time(21,30)):
                 days = [config.daysOfWeek[(datetime.weekday(today)+1)%7]]
             else:
                 days = [config.daysOfWeek[datetime.weekday(today)]]
@@ -179,12 +185,12 @@ def response_msg(m):
             
         for day in days:
             try:
-                con = sqlite3.connect('base/base.db')
+                con = sqlite3.connect(config.db_path)
                 cur = con.cursor()
                 cur.execute('SELECT scheduleTag FROM users WHERE id = (?)', [cid])
                 user = cur.fetchone()
                 if user:
-                    result = scheduleCreator.createSchedule_text(user[0],day)
+                    result = scheduleCreator.createSchedule_text(user[0], day, week_type)
                     for schedule in result:
                         bot.send_message(cid, schedule, reply_markup=dateSelect)
                 else:
