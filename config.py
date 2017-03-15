@@ -16,7 +16,7 @@ ScheduleType = {
 }
 
 daysOfWeek_rus = {
-	daysOfWeek[0]: "Понедельник",
+    daysOfWeek[0]: "Понедельник",
     daysOfWeek[1]: "Вторник",
     daysOfWeek[2]: "Среда",
     daysOfWeek[3]: "Четверг",
