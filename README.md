@@ -22,7 +22,7 @@ UniversityScheduleBot
 
 Установка
 ------------
-###Linux:
+### Linux:
 Клонируйте репозиторий и запустите setup.py: 
 ```shell
 git clone https://github.com/paladin-705/UniversityScheduleBot.git
@@ -37,7 +37,7 @@ token = '<место для токена>'
 ```shell
 python3 UniversityScheduleBot.py &
 ```
-###Windows:
+### Windows:
 То же самое, что и для Linux, но без терминала:
  1. Скачайте репозиторий
  2. Запустите setup.py
