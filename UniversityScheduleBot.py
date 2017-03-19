@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 import sqlite3
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 import telebot
 from telebot import types
@@ -9,7 +9,7 @@ from telebot import types
 import config
 import scheduleCreator
 
-commands = {  # command description used in the "help" command
+commands = {  # Описание команд используещееся в команде "help"
     'start': 'Стартовое сообщение и предложение зарегистрироваться',
     'help': 'Информация о боте и список доступных команд',
     'registration': 'Выбор ВУЗа, факультета и группы для вывода расписания',
@@ -47,11 +47,16 @@ def callback_registration(call):
 
 
 def registration(data, cid, name, username):
-    # parse message
-    # stage : org : fac : gr 
+    # Парсинг сообщения указывающего стадию регистрации
+    # registration : stage : org : fac : gr
     callback_data = re.split(r':', data)
     stage = callback_data[1]
 
+    # Процедура регистрации проходит в четрые этапа:
+    # 1 этап: выбор учебного заведения
+    # 2 этап: выбор факультета
+    # 3 этап: выбор группы
+    # 4 этап: добавление данных о принадлежности пользователя к учебному заведению в БД
     try:
         con = sqlite3.connect(config.db_path)
         cur = con.cursor()
@@ -166,7 +171,8 @@ def command_send_report(m):
         try:
             con = sqlite3.connect(config.db_path)
             cur = con.cursor()
-            cur.execute('INSERT INTO reports (user_id, report) VALUES(?, ?)', [cid, report])
+            cur.execute('INSERT INTO reports (user_id, report, date) VALUES(?, ?, ?)',
+                        [cid, report, datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
             con.commit()
 
             bot.send_message(cid, "Сообщение принято")
@@ -194,12 +200,17 @@ def response_msg(m):
             # то week_type равен остатку от деления на 2 номера недели в году, т.е он определяет чётная она или нечётная
             week_type = today.isocalendar()[1] % 2
 
-            if datetime.weekday(today) == 6 or today.time() >= time(21, 30):
-                days = [config.daysOfWeek[(datetime.weekday(today) + 1) % 7]]
-                if datetime.weekday(today) == 6:
-                    week_type = (week_type + 1) % 2
-            else:
-                days = [config.daysOfWeek[datetime.weekday(today)]]
+            # Если время больше чем 21:30, то показываем расписание на следующий день
+            if today.time() >= time(21, 30):
+                today += timedelta(days=1)
+
+            # Если сегодня воскресенье, то показывается расписание на понедельник следующей недели
+            # Также в этом случае, как week_type используется тип следующей недели
+            if datetime.weekday(today) == 6:
+                today += timedelta(days=1)
+                week_type = (week_type + 1) % 2
+
+            days = [config.daysOfWeek[datetime.weekday(today)]]
         else:
             days = [config.ScheduleType[m.text]]
 

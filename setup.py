@@ -30,7 +30,10 @@ try:
                 title TEXT, \
                 classroom TEXT, \
                 lecturer TEXT);")
-    cur.execute("CREATE TABLE reports (report_id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER,report TEXT);")
+    cur.execute("CREATE TABLE reports (report_id INTEGER PRIMARY KEY AUTOINCREMENT, \
+                user_id INTEGER, \
+                report TEXT, \
+                date DATETIME);")
     con.close()
 except:
     print("Oops! some errors")
