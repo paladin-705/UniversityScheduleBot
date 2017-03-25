@@ -136,7 +136,7 @@ if __name__ == "__main__":
                             title = parse_title(sheet.cell_value(row + count, col))
                             classroom = parse_classroom(sheet.cell_value(row + count, col))
                             lecturer = parse_lecturer(sheet.cell_value(row + count, col))
-                            if db.add_lesson(tag, day, number, 2, time_start, time_end, title, classroom, lecturer):
+                            if db.add_lesson(tag, day, number, count, time_start, time_end, title, classroom, lecturer):
                                 print('{0:5}: {1:45} {2:20} | {3:5}-{4:5} | {5}'.format(
                                     number, title, classroom, time_start, time_end, lecturer))
             print("\n")
