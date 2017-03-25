@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 token = ''
 db_path = 'base/base.db'
-
+log_dir_patch = 'log/'
 daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
 ScheduleType = {

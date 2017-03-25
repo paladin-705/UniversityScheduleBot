@@ -35,6 +35,6 @@ try:
                 report TEXT, \
                 date DATETIME);")
     con.close()
-except:
-    print("Oops! some errors")
+except BaseException as e:
+    print(str(e))
 

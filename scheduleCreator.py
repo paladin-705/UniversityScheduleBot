@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-import sqlite3
-
 import config
+import scheduledb
 
 
 def print_type(raw_type, week_type=-1):
@@ -19,32 +18,12 @@ def print_type(raw_type, week_type=-1):
         return ""
 
 
-def get_schedule_raw(tag, day, week_type):
-    data = []
-    try:
-        con = sqlite3.connect(config.db_path)
-        cur = con.cursor()
-        if week_type != -1:
-            cur.execute('SELECT number,title,classroom,type FROM schedule \
-                        WHERE tag = (?) AND day = (?) AND (type = 2 OR type = ?) \
-                        ORDER BY number, type ASC', [tag, day, week_type])
-        else:
-            cur.execute('SELECT number,title,classroom,type FROM schedule \
-                        WHERE tag = (?) AND day = (?) ORDER BY number, type ASC', [tag, day])
-        data = cur.fetchall()
-        con.close()
-    except:
-        print('DB error')
-        raise Exception('DB error')
-    finally:
-        return data
-
-
 def create_schedule_text(tag, day, week_type=-1):
     result = []
     schedule = ""
     try:
-        data = get_schedule_raw(tag, day, week_type)
+        with scheduledb.ScheduleDB() as db:
+            data = db.get_schedule(tag, day, week_type)
 
         schedule += ">{0}:\n".format(config.daysOfWeek_rus[day])
         index = 0
@@ -70,14 +49,14 @@ def create_schedule_text(tag, day, week_type=-1):
             index += 1
         result.append(schedule)
     except:
-        print("Some errors")
+        pass
     finally:
         return result
 
 
 def create_schedule_xls(tag, day):
-    print("foobar")
+    pass
 
 
 def create_schedule_pdf(tag, day):
-    print("foobar")
+    pass
