@@ -56,7 +56,7 @@ python3 UniversityScheduleBot.py &
   id - автоинкрементируемый ключ таблицы
   organization - название ВУЗа
   studGroup - группа
-  tag - хэш от конкатенации строк organization и studGroup, в данном случае sha256
+  tag - для создания тега используется метод create_tag класса ScheduleDB
 
 Таблица schedule:
 ┌───┬─────┬─────┬────────┬──────┬───────────┬─────────┬───────┬───────────┬──────────┐
