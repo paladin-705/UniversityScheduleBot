@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import re
+import threading
 from datetime import datetime, time, timedelta
+from time import sleep
 
 import telebot
 from telebot import types
@@ -15,7 +17,8 @@ commands = {  # Описание команд используещееся в к
     'start': 'Стартовое сообщение и предложение зарегистрироваться',
     'help': 'Информация о боте и список доступных команд',
     'registration': 'Выбор ВУЗа, факультета и группы для вывода расписания',
-    'send_report <сообщение>': 'Отправить информацию об ошибке или что то ещё'
+    'send_report <сообщение>': 'Отправить информацию об ошибке или что то ещё',
+    'set_auto_post_time': 'Выбор времени для автоматического постинга расписания в диалог'
 }
 
 
@@ -154,6 +157,33 @@ def command_send_report(m):
         bot.send_message(cid, "Вы отправили пустую строку", reply_markup=dateSelect)
 
 
+# handle the "/start" command
+@bot.message_handler(commands=['set_auto_post_time'])
+def command_set_auto_post_time(m):
+    cid = m.chat.id
+    data = m.text.split("/set_auto_post_time")[1].strip()
+
+    if re.match(data, r'\d{1,2}:\d\d'):
+        bot.send_message(cid, "Вы отправили пустую строку или строку неправильного формата. Правильный формат ЧЧ:ММ",
+                         reply_markup=dateSelect)
+        return None
+
+    try:
+        db = scheduledb.ScheduleDB()
+        user = db.find_user(cid)
+        if user:
+            if db.set_auto_post_time(cid, data):
+                bot.send_message(cid, "Время установлено")
+            else:
+                bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
+                                 reply_markup=dateSelect)
+        else:
+            bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
+            registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
+    except:
+        bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
+
+
 # text message handler
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def response_msg(m):
@@ -202,6 +232,41 @@ def response_msg(m):
         bot.send_message(cid, "Неизвестная команда", reply_markup=dateSelect)
 
 
+def auto_posting(current_time):
+    today = datetime.now()
+    week_type = today.isocalendar()[1] % 2
+
+    if today.time() >= time(21, 30):
+        today += timedelta(days=1)
+
+    if datetime.weekday(today) == 6:
+        today += timedelta(days=1)
+        week_type = (week_type + 1) % 2
+
+    day = [config.daysOfWeek[datetime.weekday(today)]]
+
+    with scheduledb.ScheduleDB() as db:
+        users = db.find_users_where(auto_posting_time=current_time)
+
+    if users is None:
+        return None
+    try:
+        for user in users:
+            cid = user[0]
+            tag = user[1]
+
+            schedule = scheduleCreator.create_schedule_text(tag, day[0], week_type)
+            bot.send_message(cid, schedule, reply_markup=dateSelect)
+    except BaseException as e:
+        print(str(e))
+
+
+def auto_posting_thread():
+    while True:
+        auto_posting(datetime.now().time().strftime("%H:%M"))
+        sleep(60)
+
+
 if __name__ == "__main__":
     # keyboard
     dateSelect = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True, one_time_keyboard=False)
@@ -213,4 +278,8 @@ if __name__ == "__main__":
     dateSelect.row("Среда", "Четверг")
     dateSelect.row("Пятница", "Суббота")
 
+    # auto posting thread
+    threading.Thread(target=auto_posting_thread).start()
+
+    # bot polling
     bot.polling()

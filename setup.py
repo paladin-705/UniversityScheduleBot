@@ -13,9 +13,11 @@ except OSError:
 try:
     con = sqlite3.connect(config.db_path)
     cur = con.cursor()
-    cur.execute("CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
+    cur.execute("CREATE TABLE users( \
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
                 name TEXT, username TEXT, \
-                scheduleTag TEXT);")
+                scheduleTag TEXT, \
+                auto_posting_time TIME);")
     cur.execute("CREATE TABLE organizations(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
                 organization TEXT, \
                 faculty TEXT, \

@@ -108,7 +108,19 @@ class ScheduleDB:
         except BaseException as e:
             self.logger.warning('Select user failed. Error: {0}. Data: cid={1}'.format(str(e), cid))
             raise e
-            return None
+
+    def find_users_where(self, auto_posting_time=None):
+        try:
+            if auto_posting_time is not None:
+                self.cur.execute('SELECT id, scheduleTag FROM users WHERE auto_posting_time = (?)', [auto_posting_time])
+                return self.cur.fetchall()
+            else:
+                self.cur.execute('SELECT id, scheduleTag FROM users')
+                return self.cur.fetchall()
+        except BaseException as e:
+            self.logger.warning('Select users failed. Error: {0}. auto_posting_time={1}'.format(
+                str(e), auto_posting_time))
+            raise e
 
     def get_schedule(self, tag, day, week_type=-1):
         data = []
@@ -162,3 +174,13 @@ class ScheduleDB:
             raise e
         finally:
             return group
+
+    def set_auto_post_time(self, cid, time):
+        try:
+            self.cur.execute('UPDATE users SET auto_posting_time = (?) WHERE id = (?)', [time, cid])
+            self.con.commit()
+            return True
+        except BaseException as e:
+            self.logger.warning('Set auto post time failed. Error: {0}. Data: cid={1}, auto_posting_time={2}'.format(
+                str(e), cid, time))
+            raise e
