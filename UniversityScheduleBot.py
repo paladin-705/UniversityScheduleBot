@@ -18,7 +18,7 @@ commands = {  # Описание команд используещееся в к
     'help': 'Информация о боте и список доступных команд',
     'registration': 'Выбор ВУЗа, факультета и группы для вывода расписания',
     'send_report <сообщение>': 'Отправить информацию об ошибке или что то ещё',
-    'set_auto_post_time': 'Выбор времени для автоматического постинга расписания в диалог'
+    'set_auto_post_time <ЧЧ:ММ>': 'Выбор времени для автоматического постинга расписания в диалог'
 }
 
 
@@ -172,7 +172,7 @@ def command_set_auto_post_time(m):
         db = scheduledb.ScheduleDB()
         user = db.find_user(cid)
         if user:
-            if db.set_auto_post_time(cid, data):
+            if db.set_auto_post_time(cid, (data+":00").rjust(11, '0')):
                 bot.send_message(cid, "Время установлено")
             else:
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
@@ -263,7 +263,7 @@ def auto_posting(current_time):
 
 def auto_posting_thread():
     while True:
-        auto_posting(datetime.now().time().strftime("%H:%M"))
+        auto_posting(datetime.now().time().strftime("%H:%M:00"))
         sleep(60)
 
 
