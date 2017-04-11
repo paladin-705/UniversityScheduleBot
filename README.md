@@ -7,13 +7,17 @@ UniversityScheduleBot
 Структура репозитория
 ------------
     .
+    ├── tests                             # Юнит-тесты для бота
+    │   ├── test_scheduleCreator.py
+    │   └── test_scheduledb.py
     ├── config.py                         # Настройки бота
     ├── parser.py                         # Тестовый парсер расписания
     ├── scheduleCreator.py                # Функции для генерации сообщения с расписанием
     ├── scheduledb.py                     # Класс для работы с БД
     ├── setup.py                          # Скрипт для создания БД и директорий
     ├── UniversityScheduleBot.py 
-    ├── .gitignore
+    ├── .travis.yml
+    ├── .gitignore  
     ├── testSchedule.xls                  # Расписание для parser.py
     ├── commandsList.txt                  # Лист команд для @BotFather
     ├── LICENSE
