@@ -185,3 +185,17 @@ class ScheduleDB:
             self.logger.warning('Set auto post time failed. Error: {0}. Data: cid={1}, auto_posting_time={2}'.format(
                 str(e), cid, time))
             raise e
+
+    def clear_tables(self):
+        try:
+            self.cur.execute('DELETE FROM users;')
+            self.cur.execute('DELETE FROM organizations;')
+            self.cur.execute('DELETE FROM schedule;')
+            self.cur.execute('DELETE FROM reports;')
+            self.cur.execute('VACUUM')
+            self.con.commit()
+            return True
+        except BaseException as e:
+            self.logger.warning('clear tables failed. Error: {0}.'.format(
+                str(e)))
+            raise e

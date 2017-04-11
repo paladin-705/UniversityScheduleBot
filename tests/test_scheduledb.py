@@ -11,6 +11,9 @@ class TestScheduleDB(unittest.TestCase):
     def setUpClass(cls):
         cls.db = scheduledb.ScheduleDB()
 
+    def tearDown(self):
+        self.db.clear_tables()
+
     def test_add_organization(self):
         tag = self.db.add_organization("test_organization", "test_faculty", "test_group")
         self.assertEqual(tag, "dcc7ca1233b33ac0429f0c0aa1fce4")
@@ -54,7 +57,7 @@ class TestScheduleDB(unittest.TestCase):
         self.db.add_user(user_data[0], user_data[1], user_data[2], user_data[3])
 
         user = self.db.find_user(user_data[0])
-        self.assertEqual((user_data[3]), user)
+        self.assertEqual((user_data[3],), user)
 
     def test_set_auto_post_time(self):
         user_data = [333333333, "auto_post_user_name", "auto_post_username", "dcc7ca1233b33ac0429f0c0aa1fce4"]
@@ -172,8 +175,6 @@ class TestScheduleDB(unittest.TestCase):
         self.db.add_organization("test_organization_23", "test_faculty_31", "test_group_1")
 
         groups = self.db.get_group(tag[:scheduledb.organization_field_length + scheduledb.faculty_field_length])
-        print("gr:")
-        print(groups)
         self.assertEqual(groups, real_groups)
 
 

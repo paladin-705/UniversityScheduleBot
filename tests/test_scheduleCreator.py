@@ -19,6 +19,11 @@ class TestScheduleCreator(unittest.TestCase):
             db.add_lesson(cls.tag, "Monday", 3, 2, "10:30", "11:30", "ma_lesson_3", "cr_404", "lect_3")
             db.add_lesson(cls.tag, "Tuesday", 1, 2, "08:30", "09:30", "ta_lesson_1", "cr_501", "lect_4")
 
+    @classmethod
+    def tearDownClass(cls):
+        with scheduledb.ScheduleDB() as db:
+            db.clear_tables()
+
     def test_create_schedule_text_all_week_types(self):
         real_schedule = ['>Понедельник:\n1 пара:\nma_lesson_1 cr_401 \n------------\n' +
                          '2 пара:\nmo_lesson_2 cr_402 числ\nme_lesson_2 cr_403 знам\n------------\n' +
@@ -39,7 +44,6 @@ class TestScheduleCreator(unittest.TestCase):
                          '3 пара:\nma_lesson_3 cr_404 \n------------\n']
         schedule = scheduleCreator.create_schedule_text(self.tag, "Monday", 1)
         self.assertEqual(schedule, real_schedule)
-
 
 if __name__ == '__main__':
     unittest.main()
