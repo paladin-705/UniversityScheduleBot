@@ -84,18 +84,19 @@ class ScheduleDB:
 
     def add_user(self, cid, name, username, tag):
         try:
-            self.cur.execute('INSERT INTO users VALUES(?,?,?,?)', [cid, name, username, tag])
+            self.cur.execute('INSERT INTO users VALUES(?,?,?,?,?)', [cid, name, username, tag, ""])
             self.con.commit()
+            return True
         except BaseException as e:
             self.logger.warning('Add user failed. Error: {0}. Data: cid={1}, name={2}, username={3}, tag={4}'.format(
                 str(e), cid, name, username, tag))
             raise e
-        return None
 
     def update_user(self, cid, name, username, tag):
         try:
             self.cur.execute('UPDATE users SET scheduleTag = (?) WHERE id = (?)', [tag, cid])
             self.con.commit()
+            return True
         except BaseException as e:
             self.logger.warning('Update user failed. Error: {0}. Data: cid={1}, name={2}, username={3}, tag={4}'.format(
                 str(e), cid, name, username, tag))

@@ -39,4 +39,3 @@ try:
     con.close()
 except BaseException as e:
     print(str(e))
-
