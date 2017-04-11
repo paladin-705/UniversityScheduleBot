@@ -16,7 +16,7 @@ bot = telebot.TeleBot(config.token)
 
 logging.basicConfig(format='%(asctime)-15s [ %(levelname)s ] uid=%(userid)s %(message)s',
                     filemode='a',
-                    filename=config.log_dir_patch + "bot_log-{0}.log".format(datetime.now().strftime("%Y-%m")))
+                    filename=config.log_dir_patch + "log-{0}.log".format(datetime.now().strftime("%Y-%m")))
 logger = logging.getLogger('bot-logger')
 
 commands = {  # Описание команд используещееся в команде "help"

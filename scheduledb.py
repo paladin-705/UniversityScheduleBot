@@ -17,7 +17,7 @@ class ScheduleDB:
 
         logging.basicConfig(format='%(asctime)-15s [ %(levelname)s ] %(message)s',
                             filemode='a',
-                            filename=config.log_dir_patch + "db_log-{0}.log".format(datetime.now().strftime("%Y-%m")))
+                            filename=config.log_dir_patch + "log-{0}.log".format(datetime.now().strftime("%Y-%m")))
         self.logger = logging.getLogger('db-logger')
 
     def __enter__(self):
