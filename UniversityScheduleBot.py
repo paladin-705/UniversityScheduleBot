@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 import re
 import threading
 from datetime import datetime, time, timedelta
@@ -13,12 +14,18 @@ import scheduledb
 
 bot = telebot.TeleBot(config.token)
 
+logging.basicConfig(format='%(asctime)-15s [ %(levelname)s ] uid=%(userid)s %(message)s',
+                    filemode='a',
+                    filename=config.log_dir_patch + "bot_log-{0}.log".format(datetime.now().strftime("%Y-%m")))
+logger = logging.getLogger('bot-logger')
+
 commands = {  # Описание команд используещееся в команде "help"
     'start': 'Стартовое сообщение и предложение зарегистрироваться',
     'help': 'Информация о боте и список доступных команд',
     'registration': 'Выбор ВУЗа, факультета и группы для вывода расписания',
     'send_report <сообщение>': 'Отправить информацию об ошибке или что то ещё',
-    'set_auto_post_time <ЧЧ:ММ>': 'Выбор времени для автоматического постинга расписания в диалог'
+    'auto_posting_on <ЧЧ:ММ>': 'Включение и выбор времени для автоматической отправки расписания в диалог',
+    'auto_posting_off': 'Выключение автоматической отправки расписания'
 }
 
 
@@ -100,11 +107,14 @@ def registration(data, cid, name, username):
             bot.send_message(cid, "Отлично, вы зарегистрировались, ваша группа: " + row[0][0]
                              + "\nЕсли вы ошиблись, то просто введиде команду /registration и измените данные",
                              reply_markup=dateSelect)
+            bot.send_message(cid, "Теперь вы можете настроить автоматическую отправку расписания в заданное вами время,"
+                                  " введя команду /set_auto_post_time <время>, "
+                                  "где <время> должно иметь формат ЧЧ:ММ")
         else:
             print("unknown stage")
     except BaseException as e:
-        print(str(e))
-        bot.send_message(cid, "Сдучилось что-то странное, попробуйте начать сначала, введя команду /registration")
+        logger.warning('Registration problem: {0}'.format(str(e)), extra={'userid': cid})
+        bot.send_message(cid, "Случилось что-то странное, попробуйте начать сначала, введя команду /registration")
 
 
 # handle the "/start" command
@@ -121,7 +131,8 @@ def command_start(m):
         else:
             bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
             registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
-    except:
+    except BaseException as e:
+        logger.warning('command start: {0}'.format(str(e)), extra={'userid': cid})
         bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново", reply_markup=dateSelect)
 
 
@@ -158,8 +169,8 @@ def command_send_report(m):
 
 
 # handle the "/start" command
-@bot.message_handler(commands=['set_auto_post_time'])
-def command_set_auto_post_time(m):
+@bot.message_handler(commands=['auto_posting_on'])
+def command_auto_posting_on(m):
     cid = m.chat.id
     data = m.text.split("/set_auto_post_time")[1].strip()
 
@@ -172,7 +183,7 @@ def command_set_auto_post_time(m):
         db = scheduledb.ScheduleDB()
         user = db.find_user(cid)
         if user:
-            if db.set_auto_post_time(cid, (data+":00").rjust(11, '0')):
+            if db.set_auto_post_time(cid, (data + ":00").rjust(11, '0')):
                 bot.send_message(cid, "Время установлено")
             else:
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
@@ -180,7 +191,29 @@ def command_set_auto_post_time(m):
         else:
             bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
             registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
-    except:
+    except BaseException as e:
+        logger.warning('command auto_posting_on: {0}'.format(str(e)), extra={'userid': cid})
+        bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
+
+
+@bot.message_handler(commands=['auto_posting_off'])
+def command_auto_posting_off(m):
+    cid = m.chat.id
+
+    try:
+        db = scheduledb.ScheduleDB()
+        user = db.find_user(cid)
+        if user:
+            if db.set_auto_post_time(cid, ""):
+                bot.send_message(cid, "Автоматическая отправка расписания успешно отключена")
+            else:
+                bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
+                                 reply_markup=dateSelect)
+        else:
+            bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
+            registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
+    except BaseException as e:
+        logger.warning('command auto_posting_off: {0}'.format(str(e)), extra={'userid': cid})
         bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
 
 
@@ -226,7 +259,8 @@ def response_msg(m):
                 else:
                     bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
                     registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
-            except:
+            except BaseException as e:
+                logger.warning('response_msg: {0}'.format(str(e)), extra={'userid': cid})
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
     else:
         bot.send_message(cid, "Неизвестная команда", reply_markup=dateSelect)
@@ -258,7 +292,7 @@ def auto_posting(current_time):
             schedule = scheduleCreator.create_schedule_text(tag, day[0], week_type)
             bot.send_message(cid, schedule, reply_markup=dateSelect)
     except BaseException as e:
-        print(str(e))
+        logger.warning('auto_posting: {0}'.format(str(e)))
 
 
 def auto_posting_thread():
