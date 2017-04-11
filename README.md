@@ -7,7 +7,8 @@ UniversityScheduleBot
     .
     ├── config.py                         # Настройки бота
     ├── parser.py                         # Тестовый парсер расписания
-    ├── scheduleCreator.py
+    ├── scheduleCreator.py                # Функции для генерации сообщения с расписанием
+    ├── scheduledb.py                     # Класс для работы с БД
     ├── setup.py                          # Скрипт для создания БД и директорий
     ├── UniversityScheduleBot.py 
     ├── .gitignore
