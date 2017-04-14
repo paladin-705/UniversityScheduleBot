@@ -3,13 +3,15 @@ import configparser
 import os
 
 config = configparser.ConfigParser()
-if os.path.exists("config.ini"):
-    config.read("config.ini")
+
+current_path = os.path.abspath(os.path.dirname(__file__))
+if os.path.exists(current_path + '/' + "config.ini"):
+    config.read(current_path + '/' + "config.ini")
 else:
     config['DEFAULT'] = {'token': '',
-                         'db_path': 'base',
-                         'log_dir_patch': 'log'}
-    with open('config.ini', 'w') as configfile:
+                         'db_path': current_path + '/' + 'base',
+                         'log_dir_patch': current_path + '/' + 'log'}
+    with open(current_path + '/' + 'config.ini', 'w') as configfile:
         config.write(configfile)
 
 token = config["DEFAULT"]["token"]

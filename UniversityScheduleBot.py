@@ -187,9 +187,12 @@ def command_send_report(m):
 @bot.message_handler(commands=['auto_posting_on'])
 def command_auto_posting_on(m):
     cid = m.chat.id
-    data = m.text.split("/set_auto_post_time")[1].strip()
 
-    if re.match(data, r'\d{1,2}:\d\d'):
+    try:
+        data = m.text.split("/auto_posting_on")[1].strip()
+        if re.match(data, r'\d{1,2}:\d\d'):
+            raise BaseException
+    except:
         bot.send_message(cid, "Вы отправили пустую строку или строку неправильного формата. Правильный формат ЧЧ:ММ",
                          reply_markup=get_date_keyboard())
         return None
@@ -198,7 +201,7 @@ def command_auto_posting_on(m):
         db = ScheduleDB()
         user = db.find_user(cid)
         if user:
-            if db.set_auto_post_time(cid, (data + ":00").rjust(11, '0')):
+            if db.set_auto_post_time(cid, (data + ":00").rjust(8, '0')):
                 bot.send_message(cid, "Время установлено")
             else:
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
