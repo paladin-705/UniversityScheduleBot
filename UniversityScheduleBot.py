@@ -9,8 +9,8 @@ import telebot
 from telebot import types
 
 import config
-import scheduleCreator
-import scheduledb
+from scheduleCreator import create_schedule_text
+from scheduledb import ScheduleDB, organization_field_length, faculty_field_length
 
 bot = telebot.TeleBot(config.token)
 
@@ -27,6 +27,18 @@ commands = {  # Описание команд используещееся в к
     'auto_posting_on <ЧЧ:ММ>': 'Включение и выбор времени для автоматической отправки расписания в диалог',
     'auto_posting_off': 'Выключение автоматической отправки расписания'
 }
+
+
+def get_date_keyboard():
+    date_select = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True, one_time_keyboard=False)
+
+    date_select.row("Сегодня")
+    date_select.row("Вся неделя")
+    date_select.row("Понедельник", "Вторник")
+    date_select.row("Среда", "Четверг")
+    date_select.row("Пятница", "Суббота")
+
+    return date_select
 
 
 # handle the "/registration" command
@@ -56,7 +68,7 @@ def registration(data, cid, name, username):
     # 3 этап: выбор группы
     # 4 этап: добавление данных о принадлежности пользователя к учебному заведению в БД
     try:
-        db = scheduledb.ScheduleDB()
+        db = ScheduleDB()
 
         if stage == "stage 1":
             keyboard = types.InlineKeyboardMarkup()
@@ -65,7 +77,7 @@ def registration(data, cid, name, username):
             for row in result:
                 callback_button = types.InlineKeyboardButton(
                     text=str(row[0]),
-                    callback_data="reg:stage 2:{0}".format(str(row[1])[:scheduledb.organization_field_length]))
+                    callback_data="reg:stage 2:{0}".format(str(row[1])[:organization_field_length]))
                 keyboard.add(callback_button)
 
             bot.send_message(cid, "Выберите университет:", reply_markup=keyboard)
@@ -78,7 +90,7 @@ def registration(data, cid, name, username):
                 callback_button = types.InlineKeyboardButton(
                     text=str(row[0]),
                     callback_data="reg:stage 3:{0}".format(
-                        str(row[1])[:scheduledb.organization_field_length + scheduledb.faculty_field_length]))
+                        str(row[1])[:organization_field_length + faculty_field_length]))
                 keyboard.add(callback_button)
 
             bot.send_message(cid, "Выберите факультет:", reply_markup=keyboard)
@@ -106,7 +118,7 @@ def registration(data, cid, name, username):
 
             bot.send_message(cid, "Отлично, вы зарегистрировались, ваша группа: " + row[0][0]
                              + "\nЕсли вы ошиблись, то просто введиде команду /registration и измените данные",
-                             reply_markup=dateSelect)
+                             reply_markup=get_date_keyboard())
             bot.send_message(cid, "Теперь вы можете настроить автоматическую отправку расписания в заданное вами время,"
                                   " введя команду /set_auto_post_time <время>, "
                                   "где <время> должно иметь формат ЧЧ:ММ")
@@ -124,16 +136,17 @@ def command_start(m):
     command_help(m)
 
     try:
-        with scheduledb.ScheduleDB() as db:
+        with ScheduleDB() as db:
             user = db.find_user(cid)
         if user:
-            bot.send_message(cid, "Вы уже добавлены в базу данных", reply_markup=dateSelect)
+            bot.send_message(cid, "Вы уже добавлены в базу данных", reply_markup=get_date_keyboard())
         else:
             bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
             registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
     except BaseException as e:
         logger.warning('command start: {0}'.format(str(e)), extra={'userid': cid})
-        bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново", reply_markup=dateSelect)
+        bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
+                         reply_markup=get_date_keyboard())
 
 
 # help page
@@ -144,10 +157,12 @@ def command_help(m):
     for key in commands:
         help_text += "/" + key + ": "
         help_text += commands[key] + "\n"
-    bot.send_message(cid, help_text, reply_markup=dateSelect)
+    bot.send_message(cid, help_text, reply_markup=get_date_keyboard())
 
-    help_text = 'Описание кнопок:\nКнопка "Сегодня", как это ни странно выводит расписание на сегодняшний день, причём с учётом типа недели (числитель/знаменатель), но есть один нюанс: если сегодня воскресенье или время больше чем 21:30, то выводится расписание на следующий день\n'
-    bot.send_message(cid, help_text, reply_markup=dateSelect)
+    help_text = ('Описание кнопок:\nКнопка "Сегодня", как это ни странно выводит расписание на сегодняшний день, '
+                 'причём с учётом типа недели (числитель/знаменатель), но есть один нюанс: если сегодня воскресенье '
+                 'или время больше чем 21:30, то выводится расписание на следующий день\n')
+    bot.send_message(cid, help_text, reply_markup=get_date_keyboard())
 
 
 # send_report handler
@@ -158,14 +173,14 @@ def command_send_report(m):
 
     if data[1] != '':
         report = data[1]
-        with scheduledb.ScheduleDB() as db:
+        with ScheduleDB() as db:
             if db.add_report(cid, report):
                 bot.send_message(cid, "Сообщение принято")
             else:
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
-                                 reply_markup=dateSelect)
+                                 reply_markup=get_date_keyboard())
     else:
-        bot.send_message(cid, "Вы отправили пустую строку", reply_markup=dateSelect)
+        bot.send_message(cid, "Вы отправили пустую строку", reply_markup=get_date_keyboard())
 
 
 # handle the "/start" command
@@ -176,18 +191,18 @@ def command_auto_posting_on(m):
 
     if re.match(data, r'\d{1,2}:\d\d'):
         bot.send_message(cid, "Вы отправили пустую строку или строку неправильного формата. Правильный формат ЧЧ:ММ",
-                         reply_markup=dateSelect)
+                         reply_markup=get_date_keyboard())
         return None
 
     try:
-        db = scheduledb.ScheduleDB()
+        db = ScheduleDB()
         user = db.find_user(cid)
         if user:
             if db.set_auto_post_time(cid, (data + ":00").rjust(11, '0')):
                 bot.send_message(cid, "Время установлено")
             else:
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
-                                 reply_markup=dateSelect)
+                                 reply_markup=get_date_keyboard())
         else:
             bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
             registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
@@ -201,14 +216,14 @@ def command_auto_posting_off(m):
     cid = m.chat.id
 
     try:
-        db = scheduledb.ScheduleDB()
+        db = ScheduleDB()
         user = db.find_user(cid)
         if user:
             if db.set_auto_post_time(cid, ""):
                 bot.send_message(cid, "Автоматическая отправка расписания успешно отключена")
             else:
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
-                                 reply_markup=dateSelect)
+                                 reply_markup=get_date_keyboard())
         else:
             bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
             registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
@@ -250,12 +265,12 @@ def response_msg(m):
 
         for day in days:
             try:
-                with scheduledb.ScheduleDB() as db:
+                with ScheduleDB() as db:
                     user = db.find_user(cid)
                 if user:
-                    result = scheduleCreator.create_schedule_text(user[0], day, week_type)
+                    result = create_schedule_text(user[0], day, week_type)
                     for schedule in result:
-                        bot.send_message(cid, schedule, reply_markup=dateSelect)
+                        bot.send_message(cid, schedule, reply_markup=get_date_keyboard())
                 else:
                     bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
                     registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
@@ -263,7 +278,7 @@ def response_msg(m):
                 logger.warning('response_msg: {0}'.format(str(e)), extra={'userid': cid})
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
     else:
-        bot.send_message(cid, "Неизвестная команда", reply_markup=dateSelect)
+        bot.send_message(cid, "Неизвестная команда", reply_markup=get_date_keyboard())
 
 
 def auto_posting(current_time):
@@ -279,7 +294,7 @@ def auto_posting(current_time):
 
     day = [config.daysOfWeek[datetime.weekday(today)]]
 
-    with scheduledb.ScheduleDB() as db:
+    with ScheduleDB() as db:
         users = db.find_users_where(auto_posting_time=current_time)
 
     if users is None:
@@ -289,8 +304,8 @@ def auto_posting(current_time):
             cid = user[0]
             tag = user[1]
 
-            schedule = scheduleCreator.create_schedule_text(tag, day[0], week_type)
-            bot.send_message(cid, schedule, reply_markup=dateSelect)
+            schedule = create_schedule_text(tag, day[0], week_type)
+            bot.send_message(cid, schedule, reply_markup=get_date_keyboard())
     except BaseException as e:
         logger.warning('auto_posting: {0}'.format(str(e)))
 
@@ -301,19 +316,13 @@ def auto_posting_thread():
         sleep(60)
 
 
-if __name__ == "__main__":
-    # keyboard
-    dateSelect = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True, one_time_keyboard=False)
-    button_today = types.KeyboardButton(text="Today")
-
-    dateSelect.row("Сегодня")
-    dateSelect.row("Вся неделя")
-    dateSelect.row("Понедельник", "Вторник")
-    dateSelect.row("Среда", "Четверг")
-    dateSelect.row("Пятница", "Суббота")
-
+def main():
     # auto posting thread
     threading.Thread(target=auto_posting_thread).start()
 
     # bot polling
     bot.polling()
+
+
+if __name__ == "__main__":
+    main()

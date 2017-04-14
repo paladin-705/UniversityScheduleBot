@@ -4,7 +4,7 @@ import unittest
 sys.path.append('../')
 
 import scheduledb
-import setup
+
 
 class TestScheduleDB(unittest.TestCase):
     @classmethod

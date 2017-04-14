@@ -1,7 +1,20 @@
 # -*- coding: utf-8 -*-
-token = ''
-db_path = 'base/base.db'
-log_dir_patch = 'log/'
+import configparser
+import os
+
+config = configparser.ConfigParser()
+if os.path.exists("config.ini"):
+    config.read("config.ini")
+else:
+    config['DEFAULT'] = {'token': '',
+                         'db_path': 'base',
+                         'log_dir_patch': 'log'}
+    with open('config.ini', 'w') as configfile:
+        config.write(configfile)
+
+token = config["DEFAULT"]["token"]
+db_path = config["DEFAULT"]["db_path"] + "/" + "base.db"
+log_dir_patch = config["DEFAULT"]["log_dir_patch"] + "/"
 daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
 ScheduleType = {
