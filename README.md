@@ -36,7 +36,7 @@ git clone https://github.com/paladin-705/UniversityScheduleBot.git
 cd UniversityScheduleBot
 python3 setup.py
 ```
-Скопируйте свой токен в файл config.py:
+Скопируйте свой токен в файл config.ini:
 ```python
 token = '<место для токена>'
 ```
@@ -48,7 +48,7 @@ python3 UniversityScheduleBot.py &
 То же самое, что и для Linux, но без терминала:
  1. Скачайте репозиторий
  2. Запустите setup.py
- 3. Скопируйте свой токен в файл config.py
+ 3. Скопируйте свой токен в файл config.ini
  4. Запустите UniversityScheduleBot.py
 
 Парсинг расписания в БД
