@@ -48,7 +48,7 @@ python3 UniversityScheduleBot.py &
 То же самое, что и для Linux, но без терминала:
  1. Скачайте репозиторий
  2. Запустите setup.py
- 3. Скопируйте свой токен в файл config.py
+ 3. Скопируйте свой токен в файл config.ini
  4. Запустите UniversityScheduleBot.py
 
 Парсинг расписания в БД
