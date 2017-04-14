@@ -36,7 +36,7 @@ git clone https://github.com/paladin-705/UniversityScheduleBot.git
 cd UniversityScheduleBot
 python3 setup.py
 ```
-Скопируйте свой токен в файл config.py:
+Скопируйте свой токен в файл config.ini:
 ```python
 token = '<место для токена>'
 ```
