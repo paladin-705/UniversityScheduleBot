@@ -18,6 +18,7 @@ UniversityScheduleBot
     ├── UniversityScheduleBot.py 
     ├── .travis.yml
     ├── .gitignore  
+    ├── schema.sql                        # Схема базы данных
     ├── testSchedule.xls                  # Расписание для parser.py
     ├── commandsList.txt                  # Лист команд для @BotFather
     ├── LICENSE
