@@ -3,6 +3,14 @@ import configparser
 import os
 import sqlite3
 
+
+def init_db(db_path, schema_path):
+    with sqlite3.connect(db_path) as db:
+        with open(schema_path, "r") as f:
+            db.cursor().executescript(f.read())
+        db.commit()
+
+
 if __name__ == "__main__":
     # Считывание конфигурационного файла или его создание с настройками по умолчанию
     config = configparser.ConfigParser()
@@ -26,31 +34,8 @@ if __name__ == "__main__":
 
     # Настройка базы данных
     try:
-        con = sqlite3.connect(config["DEFAULT"]["db_path"] + "/" + "base.db")
-        cur = con.cursor()
-        cur.execute("CREATE TABLE users( \
-                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
-                    name TEXT, username TEXT, \
-                    scheduleTag TEXT, \
-                    auto_posting_time TIME);")
-        cur.execute("CREATE TABLE organizations(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
-                    organization TEXT, \
-                    faculty TEXT, \
-                    studGroup TEXT, \
-                    tag TEXT);")
-        cur.execute("CREATE TABLE schedule(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
-                    tag TEXT, day TEXT, \
-                    number INTEGER, \
-                    type TEXT, \
-                    startTime TEXT, \
-                    endTime TEXT, \
-                    title TEXT, \
-                    classroom TEXT, \
-                    lecturer TEXT);")
-        cur.execute("CREATE TABLE reports (report_id INTEGER PRIMARY KEY AUTOINCREMENT, \
-                    user_id INTEGER, \
-                    report TEXT, \
-                    date DATETIME);")
-        con.close()
+        init_db(
+            db_path=config["DEFAULT"]["db_path"] + "/" + "base.db",
+            schema_path=current_path + "/" + "schema.sql")
     except BaseException as e:
         print(str(e))
