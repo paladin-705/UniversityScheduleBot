@@ -120,7 +120,7 @@ def registration(data, cid, name, username):
                              + "\nЕсли вы ошиблись, то просто введиде команду /registration и измените данные",
                              reply_markup=get_date_keyboard())
             bot.send_message(cid, "Теперь вы можете настроить автоматическую отправку расписания в заданное вами время,"
-                                  " введя команду /set_auto_post_time <время>, "
+                                  " введя команду /auto_posting_on <время>, "
                                   "где <время> должно иметь формат ЧЧ:ММ")
         else:
             print("unknown stage")
