@@ -163,6 +163,11 @@ def command_help(m):
                  'причём с учётом типа недели (числитель/знаменатель), но есть один нюанс: если сегодня воскресенье '
                  'или время больше чем 21:30, то выводится расписание на следующий день\n')
     bot.send_message(cid, help_text, reply_markup=get_date_keyboard())
+    
+    guide_url = 'https://github.com/paladin-705/UniversityScheduleBot/wiki/Guide'
+
+    help_text = 'Более подробную инструкцию и описание команд (с инструкциями гифками! ^_^) вы можете посмотерть по ссылке: {}'.format(guide_url)
+    bot.send_message(cid, help_text, reply_markup=get_date_keyboard())
 
 
 # send_report handler
