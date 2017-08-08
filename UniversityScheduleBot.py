@@ -166,7 +166,7 @@ def command_help(m):
     
     guide_url = 'https://github.com/paladin-705/UniversityScheduleBot/wiki/Guide'
 
-    help_text = 'Более подробную инструкцию и описание команд (с инструкциями гифками! ^_^) вы можете посмотерть по ссылке: {}'.format(guide_url)
+    help_text = 'Более подробную инструкцию и описание команд (с инструкциями гифками! ^_^) вы можете посмотреть по ссылке: {}'.format(guide_url)
     bot.send_message(cid, help_text, reply_markup=get_date_keyboard())
 
 
