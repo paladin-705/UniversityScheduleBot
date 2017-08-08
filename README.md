@@ -2,6 +2,8 @@ UniversityScheduleBot
 =========================
 Бот для Telegram показывающий расписание занятий. Вы можете добавить его себе в Telegram, перейдя по ссылке: [@UniversityScheduleBot](http://telegram.me/UniversityScheduleBot)
 
+Wiki проекта: [UniversityScheduleBot Wiki](https://github.com/paladin-705/UniversityScheduleBot/wiki)
+
 ![Build Status](https://travis-ci.org/paladin-705/UniversityScheduleBot.svg?branch=master)
 
 Структура репозитория
