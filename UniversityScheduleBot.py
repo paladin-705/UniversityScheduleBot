@@ -12,7 +12,7 @@ import config
 from scheduleCreator import create_schedule_text
 from scheduledb import ScheduleDB, organization_field_length, faculty_field_length
 
-bot = telebot.TeleBot(config.token)
+bot = telebot.AsyncTeleBot(config.token)
 
 logging.basicConfig(format='%(asctime)-15s [ %(levelname)s ] uid=%(userid)s %(message)s',
                     filemode='a',
