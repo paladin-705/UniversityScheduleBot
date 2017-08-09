@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from functools import lru_cache
+
 import config
 import scheduledb
 
@@ -18,6 +20,7 @@ def print_type(raw_type, week_type=-1):
         return ""
 
 
+@lru_cache(maxsize=128)
 def create_schedule_text(tag, day, week_type=-1):
     result = []
     schedule = ""
