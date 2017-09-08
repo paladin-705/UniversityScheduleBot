@@ -185,7 +185,7 @@ def command_send_report(m):
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
                                  reply_markup=get_date_keyboard())
     else:
-        bot.send_message(cid, "Вы отправили пустую строку", reply_markup=get_date_keyboard())
+        bot.send_message(cid, "Вы отправили пустую строку. Пример: /send_report <сообщение>", reply_markup=get_date_keyboard())
 
 
 # handle the "/start" command
