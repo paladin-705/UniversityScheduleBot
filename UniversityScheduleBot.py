@@ -318,7 +318,7 @@ def auto_posting(current_time):
 
 def auto_posting_thread():
     while True:
-        auto_posting(datetime.now().time().strftime("%H:%M:00"))
+        threading.Thread(target=auto_posting(datetime.now().time().strftime("%H:%M:00"))).start()
         sleep(60)
 
 
