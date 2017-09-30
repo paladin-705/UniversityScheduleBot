@@ -290,13 +290,16 @@ def response_msg(m):
 
 def auto_posting(current_time):
     today = datetime.now()
-    week_type = today.isocalendar()[1] % 2
+    week_type = (today.isocalendar()[1]+1) % 2
 
     if datetime.weekday(today) == 6:
         today += timedelta(days=1)
         week_type = (week_type + 1) % 2
     elif today.time() >= time(21, 30):
         today += timedelta(days=1)
+        
+        if datetime.weekday(today) == 6:
+            return None
 
     day = [config.daysOfWeek[datetime.weekday(today)]]
 
