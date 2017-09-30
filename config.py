@@ -17,7 +17,7 @@ else:
 token = config["DEFAULT"]["token"]
 db_path = config["DEFAULT"]["db_path"] + "/" + "base.db"
 log_dir_patch = config["DEFAULT"]["log_dir_patch"] + "/"
-daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 ScheduleType = {
     "Понедельник": daysOfWeek[0],
@@ -26,6 +26,7 @@ ScheduleType = {
     "Четверг": daysOfWeek[3],
     "Пятница": daysOfWeek[4],
     "Суббота": daysOfWeek[5],
+    "Воскресенье": daysOfWeek[6],
     "Сегодня": "Today",
     "Вся неделя": daysOfWeek
 }
@@ -37,4 +38,5 @@ daysOfWeek_rus = {
     daysOfWeek[3]: "Четверг",
     daysOfWeek[4]: "Пятница",
     daysOfWeek[5]: "Суббота",
+    daysOfWeek[6]: "Воскресенье",
 }
