@@ -256,15 +256,15 @@ def response_msg(m):
             # Если запрашивается расписание на сегодняшний день, 
             # то week_type равен остатку от деления на 2 номера недели в году, т.е он определяет чётная она или нечётная
             week_type = today.isocalendar()[1] % 2
-            
+
+            # Если время больше чем 21:30, то показываем расписание на следующий день
+            if today.time() >= time(21, 30):
+                today += timedelta(days=1)
             # Если сегодня воскресенье, то показывается расписание на понедельник следующей недели
             # Также в этом случае, как week_type используется тип следующей недели
             if datetime.weekday(today) == 6:
                 today += timedelta(days=1)
                 week_type = (week_type + 1) % 2
-            # Если время больше чем 21:30, то показываем расписание на следующий день
-            elif today.time() >= time(21, 30):
-                today += timedelta(days=1)
 
             days = [config.daysOfWeek[datetime.weekday(today)]]
         else:
