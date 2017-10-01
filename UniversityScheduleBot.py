@@ -322,7 +322,10 @@ def auto_posting(current_time):
 def auto_posting_thread():
     while True:
         threading.Thread(target=auto_posting(datetime.now().time().strftime("%H:%M:00"))).start()
-        sleep(60)
+        # Вычисляем разницу в секундах, между началом минуты и временем завершения потока
+        time_delta = datetime.now() - datetime.now().replace(second=0, microsecond=0)
+        # Поток засыпает на время равное количеству секунд до следующей минуты
+        sleep(60 - time_delta.seconds)
 
 
 def main():
