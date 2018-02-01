@@ -138,7 +138,7 @@ def command_start(m):
     try:
         with ScheduleDB() as db:
             user = db.find_user(cid)
-        if user:
+        if user and user[0] != "":
             bot.send_message(cid, "Вы уже добавлены в базу данных", reply_markup=get_date_keyboard())
         else:
             bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
@@ -205,7 +205,7 @@ def command_auto_posting_on(m):
     try:
         db = ScheduleDB()
         user = db.find_user(cid)
-        if user:
+        if user and user[0] != "":
             if db.set_auto_post_time(cid, (data + ":00").rjust(8, '0')):
                 bot.send_message(cid, "Время установлено")
             else:
@@ -274,7 +274,7 @@ def response_msg(m):
             try:
                 with ScheduleDB() as db:
                     user = db.find_user(cid)
-                if user:
+                if user and user[0] != "":
                     result = create_schedule_text(user[0], day, week_type)
                     for schedule in result:
                         bot.send_message(cid, schedule, reply_markup=get_date_keyboard())
