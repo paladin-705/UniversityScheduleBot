@@ -357,7 +357,7 @@ def auto_posting(current_time):
 
     day = [config.daysOfWeek[datetime.weekday(today)]]
 
-    # Выборка из базы у которых установлена отправка расписния на текущий день
+    # Выборка пользователей из базы у которых установлена отправка расписния на текущий день
     with ScheduleDB() as db:
         users = db.find_users_where(auto_posting_time=current_time, is_today=True)
 
@@ -376,11 +376,10 @@ def auto_posting(current_time):
     except BaseException as e:
         logger.warning('auto_posting: {0}'.format(str(e)))
 
-    # Выборка из базы у которых установлена отправка расписния на завтрашний день
-    today += timedelta(days=1)
-
-    if datetime.weekday(today) == 6:
-        return None
+    # Выборка пользователей из базы у которых установлена отправка расписния на завтрашний день, 
+    # если сегодня воскресенье, то расписание будет отправляться на понедельник.
+    if datetime.weekday(datetime.now()) != 6:
+        today += timedelta(days=1)
       
     day = [config.daysOfWeek[datetime.weekday(today)]]
 
