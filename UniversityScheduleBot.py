@@ -16,7 +16,8 @@ bot = telebot.AsyncTeleBot(config.token)
 
 logging.basicConfig(format='%(asctime)-15s [ %(levelname)s ] uid=%(userid)s %(message)s',
                     filemode='a',
-                    filename=config.log_dir_patch + "log-{0}.log".format(datetime.now().strftime("%Y-%m")))
+                    filename=config.log_dir_patch + "log-{0}.log".format(datetime.now().strftime("%Y-%m-%d")),
+                    level="INFO")
 logger = logging.getLogger('bot-logger')
 
 commands = {  # Описание команд используещееся в команде "help"
@@ -44,6 +45,9 @@ def get_date_keyboard():
 # handle the "/registration" command
 @bot.message_handler(commands=['registration'])
 def command_registration(m):
+    # Логирование
+    logger.info('registration', extra={'userid': m.chat.id})
+
     registration("reg:stage 1: none", m.chat.id, m.chat.first_name, m.chat.username)
 
 
@@ -163,6 +167,9 @@ def registration(data, cid, name, username):
 # handle the "/start" command
 @bot.message_handler(commands=['start'])
 def command_start(m):
+    # Логирование
+    logger.info('start', extra={'userid': m.chat.id})
+
     cid = m.chat.id
     command_help(m)
 
@@ -183,6 +190,9 @@ def command_start(m):
 # help page
 @bot.message_handler(commands=['help'])
 def command_help(m):
+    # Логирование
+    logger.info('help', extra={'userid': m.chat.id})
+
     cid = m.chat.id
     help_text = "Доступны следующие команды: \n"
     for key in commands:
@@ -204,6 +214,9 @@ def command_help(m):
 # send_report handler
 @bot.message_handler(commands=['send_report'])
 def command_send_report(m):
+    # Логирование
+    logger.info('send_report', extra={'userid': m.chat.id})
+
     cid = m.chat.id
     data = m.text.split("/send_report")
 
@@ -219,9 +232,12 @@ def command_send_report(m):
         bot.send_message(cid, "Вы отправили пустую строку. Пример: /send_report <сообщение>", reply_markup=get_date_keyboard())
 
 
-# handle the "/start" command
+# handle the "/auto_posting_on" command
 @bot.message_handler(commands=['auto_posting_on'])
 def command_auto_posting_on(m):
+    # Логирование
+    logger.info('auto_posting_on', extra={'userid': m.chat.id})
+
     cid = m.chat.id
 
     try:
@@ -258,6 +274,9 @@ def command_auto_posting_on(m):
 
 @bot.message_handler(commands=['auto_posting_off'])
 def command_auto_posting_off(m):
+    # Логирование
+    logger.info('auto_posting_off', extra={'userid': m.chat.id})
+
     cid = m.chat.id
 
     try:
@@ -280,6 +299,9 @@ def command_auto_posting_off(m):
 # text message handler
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def response_msg(m):
+    # Логирование
+    logger.info('message: {0}'.format(m.text), extra={'userid': m.chat.id})
+
     cid = m.chat.id
     if m.text in config.ScheduleType:
         # По умолчанию week_type равен -1 и при таком значении будут выводится все занятия, 
@@ -348,6 +370,9 @@ def auto_posting(current_time):
 
             schedule = create_schedule_text(tag, day[0], week_type)
             bot.send_message(cid, schedule, reply_markup=get_date_keyboard())
+
+            # Логирование
+            logger.info('auto_posting. Time: {0}'.format(current_time), extra={'userid': cid})
     except BaseException as e:
         logger.warning('auto_posting: {0}'.format(str(e)))
 
@@ -369,6 +394,9 @@ def auto_posting(current_time):
 
             schedule = create_schedule_text(tag, day[0], week_type)
             bot.send_message(cid, schedule, reply_markup=get_date_keyboard())
+
+            # Логирование
+            logger.info('auto_posting. Time: {0}'.format(current_time), extra={'userid': cid})
     except BaseException as e:
         logger.warning('auto_posting: {0}'.format(str(e)))
 
