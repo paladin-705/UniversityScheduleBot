@@ -78,7 +78,7 @@ class TestScheduleDB(unittest.TestCase):
         self.assertTrue(self.db.set_auto_post_time(user_data[1][0], "08:30:00", True))
         self.assertTrue(self.db.set_auto_post_time(user_data[2][0], "09:30:00", False))
 
-        users = self.db.find_users_where(auto_posting_time="08:30")
+        users = self.db.find_users_where(auto_posting_time="08:30:00")
         self.assertEqual([(user_data[0][0], user_data[0][3]), (user_data[1][0], user_data[1][3])], users)
 
     def test_get_schedule_all_week_types(self):
