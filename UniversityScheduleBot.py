@@ -48,12 +48,43 @@ def command_registration(m):
 
 
 @bot.callback_query_handler(func=lambda call: True)
-def callback_registration(call):
-    callback_data = re.split(r':', call.data)
-    call_type = callback_data[0]
+def callback_handler(call):
+    try:
+        cid = call.message.chat.id
+        callback_data = re.split(r':', call.data)
+        call_type = callback_data[0]
 
-    if call_type == "reg":
-        registration(call.data, call.message.chat.id, call.message.chat.first_name, call.message.chat.username)
+        if call_type == "reg":
+            registration(call.data, cid, call.message.chat.first_name, call.message.chat.username)
+
+        if call_type == "ap":
+            # Проверка на соответствие введённых пользователем данных принятому формату
+            if len(callback_data) != 4:
+                bot.send_message(cid,
+                                 "Вы отправили пустую строку или строку неправильного формата. Правильный формат ЧЧ:ММ",
+                                 reply_markup=get_date_keyboard())
+                return
+
+            hour = ''.join(filter(lambda x: x.isdigit(), callback_data[1]))
+            minutes = ''.join(filter(lambda x: x.isdigit(), callback_data[2]))
+            is_today = callback_data[3]
+
+            # Проверка на соответствие введённых пользователем данных принятому формату
+            if not hour.isdigit() or not minutes.isdigit():
+                bot.send_message(cid,
+                                 "Вы отправили пустую строку или строку неправильного формата. Правильный формат ЧЧ:ММ",
+                                 reply_markup=get_date_keyboard())
+                return
+
+            with ScheduleDB() as db:
+                if db.set_auto_post_time(cid, (hour + ":" + minutes + ":" + "00").rjust(8, '0'), is_today):
+                    bot.send_message(cid, "Время установлено", reply_markup=get_date_keyboard())
+                else:
+                    bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
+                                     reply_markup=get_date_keyboard())
+    except BaseException as e:
+        logger.warning('command auto_posting_off: {0}'.format(str(e)), extra={'userid': cid})
+        bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
 
 
 def registration(data, cid, name, username):
@@ -206,11 +237,17 @@ def command_auto_posting_on(m):
         db = ScheduleDB()
         user = db.find_user(cid)
         if user and user[0] != "":
-            if db.set_auto_post_time(cid, (data + ":00").rjust(8, '0')):
-                bot.send_message(cid, "Время установлено")
-            else:
-                bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
-                                 reply_markup=get_date_keyboard())
+            keyboard = types.InlineKeyboardMarkup()
+            callback_button = types.InlineKeyboardButton(
+                text="На Сегодня",
+                callback_data="ap:{0}:1".format(data))
+            keyboard.add(callback_button)
+            callback_button = types.InlineKeyboardButton(
+                text="На Завтра",
+                callback_data="ap:{0}:0".format(data))
+            keyboard.add(callback_button)
+
+            bot.send_message(cid, "Выберите день на который будет приходить расписание:", reply_markup=keyboard)
         else:
             bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
             registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
@@ -227,7 +264,7 @@ def command_auto_posting_off(m):
         db = ScheduleDB()
         user = db.find_user(cid)
         if user:
-            if db.set_auto_post_time(cid, ""):
+            if db.set_auto_post_time(cid, "", None):
                 bot.send_message(cid, "Автоматическая отправка расписания успешно отключена")
             else:
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
@@ -295,16 +332,33 @@ def auto_posting(current_time):
     if datetime.weekday(today) == 6:
         today += timedelta(days=1)
         week_type = (week_type + 1) % 2
-    elif today.time() >= time(21, 30):
-        today += timedelta(days=1)
-        
-        if datetime.weekday(today) == 6:
-            return None
 
     day = [config.daysOfWeek[datetime.weekday(today)]]
 
+    # Выборка из базы у которых установлена отправка расписния на текущий день
     with ScheduleDB() as db:
-        users = db.find_users_where(auto_posting_time=current_time)
+        users = db.find_users_where(auto_posting_time=current_time, is_today=True)
+
+    if users is None:
+        return None
+    try:
+        for user in users:
+            cid = user[0]
+            tag = user[1]
+
+            schedule = create_schedule_text(tag, day[0], week_type)
+            bot.send_message(cid, schedule, reply_markup=get_date_keyboard())
+    except BaseException as e:
+        logger.warning('auto_posting: {0}'.format(str(e)))
+
+    # Выборка из базы у которых установлена отправка расписния на завтрашний день
+    today += timedelta(days=1)
+
+    if datetime.weekday(today) == 6:
+        return None
+
+    with ScheduleDB() as db:
+        users = db.find_users_where(auto_posting_time=current_time, is_today=False)
 
     if users is None:
         return None

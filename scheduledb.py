@@ -84,7 +84,7 @@ class ScheduleDB:
 
     def add_user(self, cid, name, username, tag):
         try:
-            self.cur.execute('INSERT INTO users VALUES(?,?,?,?,?)', [cid, name, username, tag, ""])
+            self.cur.execute('INSERT INTO users VALUES(?,?,?,?,?,?)', [cid, name, username, tag, "", None])
             self.con.commit()
             return True
         except BaseException as e:
@@ -110,10 +110,19 @@ class ScheduleDB:
             self.logger.warning('Select user failed. Error: {0}. Data: cid={1}'.format(str(e), cid))
             raise e
 
-    def find_users_where(self, auto_posting_time=None):
+    def find_users_where(self, auto_posting_time=None, is_today=None):
         try:
-            if auto_posting_time is not None:
-                self.cur.execute('SELECT id, scheduleTag FROM users WHERE auto_posting_time = (?)', [auto_posting_time])
+            if auto_posting_time is not None and is_today is not None:
+                self.cur.execute('SELECT id, scheduleTag FROM users WHERE auto_posting_time = (?) AND is_today = (?)',
+                                 [auto_posting_time, is_today])
+                return self.cur.fetchall()
+            elif auto_posting_time is not None:
+                self.cur.execute('SELECT id, scheduleTag FROM users WHERE auto_posting_time = (?)',
+                                 [auto_posting_time])
+                return self.cur.fetchall()
+            elif is_today is not None:
+                self.cur.execute('SELECT id, scheduleTag FROM users WHERE is_today = (?)',
+                                 [is_today])
                 return self.cur.fetchall()
             else:
                 self.cur.execute('SELECT id, scheduleTag FROM users')
@@ -176,9 +185,10 @@ class ScheduleDB:
         finally:
             return group
 
-    def set_auto_post_time(self, cid, time):
+    def set_auto_post_time(self, cid, time, is_today):
         try:
-            self.cur.execute('UPDATE users SET auto_posting_time = (?) WHERE id = (?)', [time, cid])
+            self.cur.execute('UPDATE users SET auto_posting_time = (?), is_today = (?) WHERE id = (?)',
+                             [time, is_today, cid])
             self.con.commit()
             return True
         except BaseException as e:

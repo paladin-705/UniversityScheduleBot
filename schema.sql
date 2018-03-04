@@ -2,7 +2,8 @@ CREATE TABLE users(
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	name TEXT, username TEXT,
 	scheduleTag TEXT,
-	auto_posting_time TIME
+	auto_posting_time TIME,
+	is_today BOOLEAN
 );
 CREATE TABLE organizations(
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
