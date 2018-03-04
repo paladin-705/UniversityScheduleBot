@@ -381,6 +381,8 @@ def auto_posting(current_time):
 
     if datetime.weekday(today) == 6:
         return None
+      
+    day = [config.daysOfWeek[datetime.weekday(today)]]
 
     with ScheduleDB() as db:
         users = db.find_users_where(auto_posting_time=current_time, is_today=False)
