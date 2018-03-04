@@ -63,7 +63,7 @@ class TestScheduleDB(unittest.TestCase):
         user_data = [333333333, "auto_post_user_name", "auto_post_username", "dcc7ca1233b33ac0429f0c0aa1fce4"]
         self.db.add_user(user_data[0], user_data[1], user_data[2], user_data[3])
 
-        self.assertTrue(self.db.set_auto_post_time(user_data[0], "08:30"))
+        self.assertTrue(self.db.set_auto_post_time(user_data[0], "08:30:00", True))
 
     def test_find_users_where(self):
         user_data = [[444444444, "name_1", "username_1", "dcc7ca1233b33ac0429f0c0aa1fce4"],
@@ -74,9 +74,9 @@ class TestScheduleDB(unittest.TestCase):
         self.db.add_user(user_data[1][0], user_data[1][1], user_data[1][2], user_data[1][3])
         self.db.add_user(user_data[2][0], user_data[2][1], user_data[2][2], user_data[2][3])
 
-        self.assertTrue(self.db.set_auto_post_time(user_data[0][0], "08:30"))
-        self.assertTrue(self.db.set_auto_post_time(user_data[1][0], "08:30"))
-        self.assertTrue(self.db.set_auto_post_time(user_data[2][0], "09:30"))
+        self.assertTrue(self.db.set_auto_post_time(user_data[0][0], "08:30:00", False))
+        self.assertTrue(self.db.set_auto_post_time(user_data[1][0], "08:30:00", True))
+        self.assertTrue(self.db.set_auto_post_time(user_data[2][0], "09:30:00", False))
 
         users = self.db.find_users_where(auto_posting_time="08:30")
         self.assertEqual([(user_data[0][0], user_data[0][3]), (user_data[1][0], user_data[1][3])], users)
