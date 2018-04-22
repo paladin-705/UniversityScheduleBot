@@ -37,6 +37,7 @@ Wiki проекта: [UniversityScheduleBot Wiki](https://github.com/paladin-705
 ```shell
 git clone https://github.com/paladin-705/UniversityScheduleBot.git
 cd UniversityScheduleBot
+pip install requirements.txt 
 python3 setup.py
 ```
 Скопируйте свой токен в файл config.ini:
