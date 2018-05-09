@@ -34,6 +34,7 @@ def get_date_keyboard():
     date_select = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True, one_time_keyboard=False)
 
     date_select.row("Сегодня")
+    date_select.row("Завтра")
     date_select.row("Вся неделя")
     date_select.row("Понедельник", "Вторник")
     date_select.row("Среда", "Четверг")
@@ -316,9 +317,6 @@ def response_msg(m):
             # то week_type равен остатку от деления на 2 номера недели в году, т.е он определяет чётная она или нечётная
             week_type = today.isocalendar()[1] % 2
 
-            # Если время больше чем 21:30, то показываем расписание на следующий день
-            if today.time() >= time(21, 30):
-                today += timedelta(days=1)
             # Если сегодня воскресенье, то показывается расписание на понедельник следующей недели
             # Также в этом случае, как week_type используется тип следующей недели
             if datetime.weekday(today) == 6:
@@ -326,6 +324,20 @@ def response_msg(m):
                 week_type = (week_type + 1) % 2
 
             days = [config.daysOfWeek[datetime.weekday(today)]]
+        elif m.text == 'Завтра':
+            tomorrow = datetime.now()
+            # Если запрашивается расписание на сегодняшний день,
+            # то week_type равен остатку от деления на 2 номера недели в году, т.е он определяет чётная она или нечётная
+            week_type = (tomorrow.isocalendar()[1] + 0) % 2
+
+            tomorrow += timedelta(days=1)
+            # Если сегодня воскресенье, то показывается расписание на понедельник следующей недели
+            # Также в этом случае, как week_type используется тип следующей недели
+            if datetime.weekday(tomorrow) == 6:
+               tomorrow += timedelta(days=1)
+               week_type = (week_type + 1) % 2
+
+            days = [config.daysOfWeek[datetime.weekday(tomorrow)]]
         else:
             days = [config.ScheduleType[m.text]]
 
