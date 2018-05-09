@@ -28,6 +28,7 @@ ScheduleType = {
     "Суббота": daysOfWeek[5],
     "Воскресенье": daysOfWeek[6],
     "Сегодня": "Today",
+    "Завтра": "Tomorrow",
     "Вся неделя": daysOfWeek
 }
 
