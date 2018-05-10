@@ -386,7 +386,7 @@ def auto_posting(current_time):
             # Логирование
             logger.info('auto_posting. Time: {0}'.format(current_time), extra={'userid': cid})
     except BaseException as e:
-        logger.warning('auto_posting: {0}'.format(str(e)))
+        logger.warning('auto_posting: {0}'.format(str(e)), extra={'userid': 0})
 
     # Выборка пользователей из базы у которых установлена отправка расписния на завтрашний день, 
     # если сегодня воскресенье, то расписание будет отправляться на понедельник.
@@ -411,7 +411,7 @@ def auto_posting(current_time):
             # Логирование
             logger.info('auto_posting. Time: {0}'.format(current_time), extra={'userid': cid})
     except BaseException as e:
-        logger.warning('auto_posting: {0}'.format(str(e)))
+        logger.warning('auto_posting: {0}'.format(str(e)), extra={'userid': 0})
 
 
 def auto_posting_thread():
