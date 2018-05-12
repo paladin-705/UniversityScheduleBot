@@ -381,6 +381,8 @@ def auto_posting(current_time):
             tag = user[1]
 
             schedule = create_schedule_text(tag, day[0], week_type)
+            if len(schedule[0]) <= 14:
+                continue
             bot.send_message(cid, schedule, reply_markup=get_date_keyboard())
 
             # Логирование
@@ -406,6 +408,8 @@ def auto_posting(current_time):
             tag = user[1]
 
             schedule = create_schedule_text(tag, day[0], week_type)
+            if len(schedule[0]) <= 14:
+                continue
             bot.send_message(cid, schedule, reply_markup=get_date_keyboard())
 
             # Логирование
