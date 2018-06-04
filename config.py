@@ -2,21 +2,27 @@
 import configparser
 import os
 
-config = configparser.ConfigParser()
+config_file = configparser.ConfigParser()
+config = config_file['DEFAULT']
 
 current_path = os.path.abspath(os.path.dirname(__file__))
 if os.path.exists(current_path + '/' + "config.ini"):
-    config.read(current_path + '/' + "config.ini")
+    config_file.read(current_path + '/' + "config.ini")
 else:
-    config['DEFAULT'] = {'token': '',
-                         'db_path': current_path + '/' + 'base',
-                         'log_dir_patch': current_path + '/' + 'log'}
+    config = {
+        'TOKEN': '',
+        'PROXY_IP': '127.0.0.1',
+        'PROXY_PORT': '80',
+        'DB_NAME': 'bot',
+        'DB_HOST': 'localhost',
+        'DB_USER': 'postgres',
+        'DB_PASSWORD': 'kserks555',
+        'LOG_DIR_PATH': current_path + '/' + 'log'}
     with open(current_path + '/' + 'config.ini', 'w') as configfile:
-        config.write(configfile)
+        config_file.write(configfile)
 
-token = config["DEFAULT"]["token"]
-db_path = config["DEFAULT"]["db_path"] + "/" + "base.db"
-log_dir_patch = config["DEFAULT"]["LOG_DIR_PATH"] + "/"
+token = config["TOKEN"]
+log_dir_patch = config["LOG_DIR_PATH"] + "/"
 daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 ScheduleType = {

@@ -6,17 +6,19 @@ from datetime import datetime, time, timedelta
 from time import sleep
 
 import telebot
-from telebot import types
+from telebot import types, apihelper
 
-import config
+from config import config, daysOfWeek, ScheduleType
 from scheduleCreator import create_schedule_text
 from scheduledb import ScheduleDB, organization_field_length, faculty_field_length
 
-bot = telebot.AsyncTeleBot(config.token)
+bot = telebot.AsyncTeleBot(config["TOKEN"])
+
+apihelper.proxy = {'http':'http://{}:{}'.format(config["PROXY_IP"], config["PROXY_PORT"])}
 
 logging.basicConfig(format='%(asctime)-15s [ %(levelname)s ] uid=%(userid)s %(message)s',
                     filemode='a',
-                    filename=config.log_dir_patch + "log-{0}.log".format(datetime.now().strftime("%Y-%m-%d")),
+                    filename=config["LOG_DIR_PATH"] + "log-{0}.log".format(datetime.now().strftime("%Y-%m-%d")),
                     level="INFO")
 logger = logging.getLogger('bot-logger')
 
@@ -54,8 +56,9 @@ def command_registration(m):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
+    cid = call.message.chat.id
+
     try:
-        cid = call.message.chat.id
         callback_data = re.split(r':', call.data)
         call_type = callback_data[0]
 
@@ -81,7 +84,7 @@ def callback_handler(call):
                                  reply_markup=get_date_keyboard())
                 return
 
-            with ScheduleDB() as db:
+            with ScheduleDB(config) as db:
                 if db.set_auto_post_time(cid, (hour + ":" + minutes + ":" + "00").rjust(8, '0'), is_today):
                     bot.send_message(cid, "Время установлено", reply_markup=get_date_keyboard())
                 else:
@@ -104,7 +107,7 @@ def registration(data, cid, name, username):
     # 3 этап: выбор группы
     # 4 этап: добавление данных о принадлежности пользователя к учебному заведению в БД
     try:
-        db = ScheduleDB()
+        db = ScheduleDB(config)
 
         if stage == "stage 1":
             keyboard = types.InlineKeyboardMarkup()
@@ -175,7 +178,7 @@ def command_start(m):
     command_help(m)
 
     try:
-        with ScheduleDB() as db:
+        with ScheduleDB(config) as db:
             user = db.find_user(cid)
         if user and user[0] != "":
             bot.send_message(cid, "Вы уже добавлены в базу данных", reply_markup=get_date_keyboard())
@@ -208,7 +211,8 @@ def command_help(m):
     
     guide_url = 'https://github.com/paladin-705/UniversityScheduleBot/wiki/Guide'
 
-    help_text = 'Более подробную инструкцию и описание команд (с инструкциями гифками! ^_^) вы можете посмотреть по ссылке: {}'.format(guide_url)
+    help_text = 'Более подробную инструкцию и описание команд (с инструкциями гифками! ^_^) \
+    вы можете посмотреть по ссылке: {}'.format(guide_url)
     bot.send_message(cid, help_text, reply_markup=get_date_keyboard())
 
 
@@ -223,14 +227,17 @@ def command_send_report(m):
 
     if data[1] != '':
         report = data[1]
-        with ScheduleDB() as db:
+        with ScheduleDB(config) as db:
             if db.add_report(cid, report):
                 bot.send_message(cid, "Сообщение принято")
             else:
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
                                  reply_markup=get_date_keyboard())
     else:
-        bot.send_message(cid, "Вы отправили пустую строку. Пример: /send_report <сообщение>", reply_markup=get_date_keyboard())
+        bot.send_message(
+            cid,
+            "Вы отправили пустую строку. Пример: /send_report <сообщение>",
+            reply_markup=get_date_keyboard())
 
 
 # handle the "/auto_posting_on" command
@@ -251,7 +258,7 @@ def command_auto_posting_on(m):
         return None
 
     try:
-        db = ScheduleDB()
+        db = ScheduleDB(config)
         user = db.find_user(cid)
         if user and user[0] != "":
             keyboard = types.InlineKeyboardMarkup()
@@ -281,7 +288,7 @@ def command_auto_posting_off(m):
     cid = m.chat.id
 
     try:
-        db = ScheduleDB()
+        db = ScheduleDB(config)
         user = db.find_user(cid)
         if user:
             if db.set_auto_post_time(cid, "", None):
@@ -334,16 +341,16 @@ def response_msg(m):
             # Если сегодня воскресенье, то показывается расписание на понедельник следующей недели
             # Также в этом случае, как week_type используется тип следующей недели
             if datetime.weekday(tomorrow) == 6:
-               tomorrow += timedelta(days=1)
-               week_type = (week_type + 1) % 2
+                tomorrow += timedelta(days=1)
+                week_type = (week_type + 1) % 2
 
-            days = [config.daysOfWeek[datetime.weekday(tomorrow)]]
+            days = [daysOfWeek[datetime.weekday(tomorrow)]]
         else:
-            days = [config.ScheduleType[m.text]]
+            days = [ScheduleType[m.text]]
 
         for day in days:
             try:
-                with ScheduleDB() as db:
+                with ScheduleDB(config) as db:
                     user = db.find_user(cid)
                 if user and user[0] != "":
                     result = create_schedule_text(user[0], day, week_type)
@@ -370,7 +377,7 @@ def auto_posting(current_time):
     day = [config.daysOfWeek[datetime.weekday(today)]]
 
     # Выборка пользователей из базы у которых установлена отправка расписния на текущий день
-    with ScheduleDB() as db:
+    with ScheduleDB(config) as db:
         users = db.find_users_where(auto_posting_time=current_time, is_today=True)
 
     if users is None:
@@ -395,9 +402,9 @@ def auto_posting(current_time):
     if datetime.weekday(datetime.now()) != 6:
         today += timedelta(days=1)
       
-    day = [config.daysOfWeek[datetime.weekday(today)]]
+    day = [daysOfWeek[datetime.weekday(today)]]
 
-    with ScheduleDB() as db:
+    with ScheduleDB(config) as db:
         users = db.find_users_where(auto_posting_time=current_time, is_today=False)
 
     if users is None:

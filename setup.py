@@ -7,7 +7,7 @@ import psycopg2
 def init_db(name, user, pasw, host, schema_path):
     with psycopg2.connect(dbname=name, user=user, password=pasw, host=host) as db:
         with open(schema_path, "r") as f:
-            db.cursor().executescript(f.read())
+            db.cursor().execute(f.read())
         db.commit()
 
 
@@ -19,7 +19,9 @@ if __name__ == "__main__":
     if os.path.exists(current_path + '/' + "config.ini"):
         config.read(current_path + '/' + "config.ini")
     else:
-        config['DEFAULT'] = {'token': '',
+        config['DEFAULT'] = {'TOKEN': '',
+                             'PROXY_IP': '127.0.0.1',
+                             'PROXY_PORT': '80',
                              'DB_NAME': '',
                              'DB_HOST': '',
                              'DB_USER': '',

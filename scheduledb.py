@@ -82,7 +82,7 @@ class ScheduleDB:
 
     def add_user(self, cid, name, username, tag):
         try:
-            self.cur.execute('INSERT INTO users VALUES(%s,%s,%s,%s,%s,null,null)', ('vk', cid, name, username, tag))
+            self.cur.execute('INSERT INTO users VALUES(%s,%s,%s,%s,%s,null,null)', ('tg', cid, name, username, tag))
             self.con.commit()
             return True
         except BaseException as e:
@@ -92,7 +92,7 @@ class ScheduleDB:
 
     def update_user(self, cid, name, username, tag):
         try:
-            self.cur.execute('UPDATE users SET "scheduleTag" = (%s) WHERE id = (%s) AND type = (%s)', (tag, cid, 'vk'))
+            self.cur.execute('UPDATE users SET "scheduleTag" = (%s) WHERE id = (%s) AND type = (%s)', (tag, cid, 'tg'))
             self.con.commit()
             return True
         except BaseException as e:
@@ -102,7 +102,7 @@ class ScheduleDB:
 
     def find_user(self, cid):
         try:
-            self.cur.execute('SELECT "scheduleTag" FROM users WHERE id = (%s) AND type = (%s)', (cid, 'vk'))
+            self.cur.execute('SELECT "scheduleTag" FROM users WHERE id = (%s) AND type = (%s)', (cid, 'tg'))
             return self.cur.fetchone()
         except BaseException as e:
             self.logger.warning('Select user failed. Error: {0}. Data: cid={1}'.format(str(e), cid))
@@ -112,18 +112,18 @@ class ScheduleDB:
         try:
             if auto_posting_time is not None and is_today is not None:
                 self.cur.execute('SELECT id, "scheduleTag" FROM users WHERE auto_posting_time = %s AND is_today = %s  AND type = (%s)',
-                                 (auto_posting_time, is_today, 'vk'))
+                                 (auto_posting_time, is_today, 'tg'))
                 return self.cur.fetchall()
             elif auto_posting_time is not None:
                 self.cur.execute('SELECT id, "scheduleTag" FROM users WHERE auto_posting_time = %s AND type = (%s)',
-                                 (auto_posting_time, 'vk'))
+                                 (auto_posting_time, 'tg'))
                 return self.cur.fetchall()
             elif is_today is not None:
                 self.cur.execute('SELECT id, "scheduleTag" FROM users WHERE is_today = %s AND type = (%s)',
-                                 (is_today, 'vk'))
+                                 (is_today, 'tg'))
                 return self.cur.fetchall()
             else:
-                self.cur.execute('SELECT id, "scheduleTag" FROM users WHERE type = (%s)', ['vk'])
+                self.cur.execute('SELECT id, "scheduleTag" FROM users WHERE type = (%s)', ['tg'])
                 return self.cur.fetchall()
         except BaseException as e:
             self.logger.warning('Select users failed. Error: {0}. auto_posting_time={1}'.format(
@@ -182,23 +182,6 @@ class ScheduleDB:
             raise e
         finally:
             return group
-
-    def get_similar_organizations(self, org_name=""):
-        org = []
-        try:
-            self.cur.execute('''
-            SELECT tag,
-            (organization || ' ' || faculty || ' ' || studgroup),
-            similarity(lower(organization || ' ' || faculty || ' ' || studgroup), lower(%s))
-            FROM organizations
-            ORDER BY similarity(lower(organization || ' ' || faculty || ' ' || studgroup), lower(%s)) DESC LIMIT 5;''',
-                             (org_name, org_name))
-            org = self.cur.fetchall()
-        except BaseException as e:
-            self.logger.warning('Select similar organizations failed. Error: {0}. Data: tag={1}'.format(str(e), [org_name]))
-            raise e
-        finally:
-            return org
 
     def set_auto_post_time(self, cid, time, is_today):
         try:
