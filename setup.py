@@ -26,7 +26,7 @@ if __name__ == "__main__":
                              'DB_HOST': '',
                              'DB_USER': '',
                              'DB_PASSWORD': '',
-                             'LOG_DIR_PATH': current_path + '/' + 'log'
+                             'LOG_DIR_PATH': current_path + '/' + 'log' + '/'
                              }
         with open(current_path + '/' + 'config.ini', 'w') as configfile:
             config.write(configfile)
