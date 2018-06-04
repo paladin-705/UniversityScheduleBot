@@ -16,7 +16,7 @@ else:
 
 token = config["DEFAULT"]["token"]
 db_path = config["DEFAULT"]["db_path"] + "/" + "base.db"
-log_dir_patch = config["DEFAULT"]["log_dir_patch"] + "/"
+log_dir_patch = config["DEFAULT"]["LOG_DIR_PATH"] + "/"
 daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 ScheduleType = {
