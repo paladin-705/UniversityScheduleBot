@@ -311,13 +311,13 @@ def response_msg(m):
     logger.info('message: {0}'.format(m.text), extra={'userid': m.chat.id})
 
     cid = m.chat.id
-    if m.text in config.ScheduleType:
+    if m.text in ScheduleType:
         # По умолчанию week_type равен -1 и при таком значении будут выводится все занятия, 
         # т.е и для чётных и для нечётных недель
         week_type = -1
 
         if m.text == "Вся неделя":
-            days = config.ScheduleType[m.text]
+            days = ScheduleType[m.text]
         elif m.text == "Сегодня":
             today = datetime.now()
             # Если запрашивается расписание на сегодняшний день, 
@@ -330,7 +330,7 @@ def response_msg(m):
                 today += timedelta(days=1)
                 week_type = (week_type + 1) % 2
 
-            days = [config.daysOfWeek[datetime.weekday(today)]]
+            days = [daysOfWeek[datetime.weekday(today)]]
         elif m.text == 'Завтра':
             tomorrow = datetime.now()
             # Если запрашивается расписание на сегодняшний день,
@@ -374,7 +374,7 @@ def auto_posting(current_time):
         today += timedelta(days=1)
         week_type = (week_type + 1) % 2
 
-    day = [config.daysOfWeek[datetime.weekday(today)]]
+    day = [daysOfWeek[datetime.weekday(today)]]
 
     # Выборка пользователей из базы у которых установлена отправка расписния на текущий день
     with ScheduleDB(config) as db:
