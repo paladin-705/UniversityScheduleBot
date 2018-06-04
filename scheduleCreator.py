@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from functools import lru_cache
 
-import config
+from config import config, daysOfWeek_rus
 import scheduledb
 
 
@@ -25,10 +25,10 @@ def create_schedule_text(tag, day, week_type=-1):
     result = []
     schedule = ""
     try:
-        with scheduledb.ScheduleDB() as db:
+        with scheduledb.ScheduleDB(config) as db:
             data = db.get_schedule(tag, day, week_type)
 
-        schedule += ">{0}:\n".format(config.daysOfWeek_rus[day])
+        schedule += ">{0}:\n".format(daysOfWeek_rus[day])
         index = 0
         while index < len(data):
             row = data[index]
