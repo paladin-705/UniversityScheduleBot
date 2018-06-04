@@ -152,7 +152,7 @@ class ScheduleDB:
         organizations = []
         try:
             self.cur.execute("SELECT DISTINCT ON (organization) organization, tag \
-            FROM organizations WHERE tag LIKE %s ORDER BY organization;", (tag + '%'))
+            FROM organizations WHERE tag LIKE %s ORDER BY organization;", [tag + '%'])
             organizations = self.cur.fetchall()
         except BaseException as e:
             self.logger.warning('Select schedule failed. Error: {0}. Data: tag={1}'.format(str(e), tag))
@@ -164,7 +164,7 @@ class ScheduleDB:
         faculties = []
         try:
             self.cur.execute("SELECT DISTINCT ON (faculty) faculty, tag \
-            FROM organizations WHERE tag LIKE %s ORDER BY faculty;", (tag + '%'))
+            FROM organizations WHERE tag LIKE %s ORDER BY faculty;", [tag + '%'])
             faculties = self.cur.fetchall()
         except BaseException as e:
             self.logger.warning('Select schedule failed. Error: {0}. Data: tag={1}'.format(str(e), tag))
@@ -177,7 +177,7 @@ class ScheduleDB:
         try:
             self.cur.execute("SELECT DISTINCT ON (studGroup) studGroup, tag \
             FROM organizations WHERE tag LIKE %s ORDER BY studGroup;",
-                             (tag + '%'))
+                             [tag + '%'])
             group = self.cur.fetchall()
         except BaseException as e:
             self.logger.warning('Select group failed. Error: {0}. Data: tag={1}'.format(str(e), [tag]))
