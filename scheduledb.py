@@ -188,7 +188,7 @@ class ScheduleDB:
     def set_auto_post_time(self, cid, time, is_today):
         try:
             self.cur.execute('UPDATE users SET auto_posting_time = %s, is_today = %s \
-            WHERE id = %s AND WHERE type = (%s)',
+            WHERE id = %s AND type = (%s)',
                              (time, is_today, cid, 'tg'))
             self.con.commit()
             return True
