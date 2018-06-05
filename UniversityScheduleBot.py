@@ -322,7 +322,7 @@ def response_msg(m):
             today = datetime.now()
             # Если запрашивается расписание на сегодняшний день, 
             # то week_type равен остатку от деления на 2 номера недели в году, т.е он определяет чётная она или нечётная
-            week_type = today.isocalendar()[1] % 2
+            week_type = (today.isocalendar()[1] + config["WEEK_TYPE"]) % 2
 
             # Если сегодня воскресенье, то показывается расписание на понедельник следующей недели
             # Также в этом случае, как week_type используется тип следующей недели
@@ -335,7 +335,7 @@ def response_msg(m):
             tomorrow = datetime.now()
             # Если запрашивается расписание на сегодняшний день,
             # то week_type равен остатку от деления на 2 номера недели в году, т.е он определяет чётная она или нечётная
-            week_type = (tomorrow.isocalendar()[1] + 0) % 2
+            week_type = (tomorrow.isocalendar()[1] + config["WEEK_TYPE"]) % 2
 
             tomorrow += timedelta(days=1)
             # Если сегодня воскресенье, то показывается расписание на понедельник следующей недели
@@ -368,7 +368,7 @@ def response_msg(m):
 
 def auto_posting(current_time):
     today = datetime.now()
-    week_type = (today.isocalendar()[1]+1) % 2
+    week_type = (today.isocalendar()[1] + config["WEEK_TYPE"]) % 2
 
     if datetime.weekday(today) == 6:
         today += timedelta(days=1)

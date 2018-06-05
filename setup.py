@@ -26,7 +26,8 @@ if __name__ == "__main__":
                              'DB_HOST': 'адрес БД',
                              'DB_USER': 'пользователь для работы с БД',
                              'DB_PASSWORD': 'пароль пользователя',
-                             'LOG_DIR_PATH': current_path + '/' + 'log' + '/'
+                             'LOG_DIR_PATH': current_path + '/' + 'log' + '/',
+                             'WEEK_TYPE': '0'
                              }
         with open(current_path + '/' + 'config.ini', 'w') as configfile:
             config.write(configfile)

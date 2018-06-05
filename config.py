@@ -17,7 +17,8 @@ else:
         'DB_HOST': 'localhost',
         'DB_USER': 'postgres',
         'DB_PASSWORD': 'kserks555',
-        'LOG_DIR_PATH': current_path + '/' + 'log'}
+        'LOG_DIR_PATH': current_path + '/' + 'log',
+        'WEEK_TYPE': '0'}
     with open(current_path + '/' + 'config.ini', 'w') as configfile:
         config_file.write(configfile)
 
