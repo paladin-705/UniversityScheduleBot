@@ -9,9 +9,6 @@ Wiki проекта: [UniversityScheduleBot Wiki](https://github.com/paladin-705
 Структура репозитория
 ------------
     .
-    ├── tests                             # Юнит-тесты для бота
-    │   ├── test_scheduleCreator.py
-    │   └── test_scheduledb.py
     ├── config.py                         # Настройки бота
     ├── parser.py                         # Тестовый парсер расписания
     ├── scheduleCreator.py                # Функции для генерации сообщения с расписанием
@@ -28,21 +25,28 @@ Wiki проекта: [UniversityScheduleBot Wiki](https://github.com/paladin-705
 
 Зависимости
 ------------
-Данная программа требует для работы Python 3 и библиотеку xlrd (её наличие необходимо лишь для работы parser.py)
+Данная программа требует для работы Python 3 и PostgreSQL.
 
 Установка
 ------------
 ### Linux:
-Клонируйте репозиторий и запустите setup.py: 
+Клонируйте репозиторий: 
 ```shell
 git clone https://github.com/paladin-705/UniversityScheduleBot.git
 cd UniversityScheduleBot
 pip install -r requirements.txt
-python3 setup.py
 ```
-Скопируйте свой токен в файл config.ini:
+Скопируйте свой токен бота и данные для подключения к PostgreSQL БД в файл setup.py:
 ```python
-token = место для токена
+'TOKEN': 'место для токена',
+'DB_NAME': 'название базы данных',
+'DB_HOST': 'адрес БД',
+'DB_USER': 'пользователь для работы с БД',
+'DB_PASSWORD': 'пароль пользователя',
+```
+Запустите файл setup.py для начальной настройки бота:
+```shell
+python3 setup.py
 ```
 Запустите бота, введя: 
 ```shell
@@ -51,8 +55,8 @@ python3 UniversityScheduleBot.py &
 ### Windows:
 То же самое, что и для Linux, но без терминала:
  1. Скачайте репозиторий
- 2. Запустите setup.py
- 3. Скопируйте свой токен в файл config.ini
+ 2. Скопируйте свой токен и данные для подключения к PostgreSQL БД в файл setup.py
+ 3. Запустите setup.py
  4. Запустите UniversityScheduleBot.py
 
 Поддерживаемые команды
