@@ -19,13 +19,13 @@ if __name__ == "__main__":
     if os.path.exists(current_path + '/' + "config.ini"):
         config.read(current_path + '/' + "config.ini")
     else:
-        config['DEFAULT'] = {'TOKEN': '',
+        config['DEFAULT'] = {'TOKEN': 'место для токена',
                              'PROXY_IP': '127.0.0.1',
                              'PROXY_PORT': '80',
-                             'DB_NAME': '',
-                             'DB_HOST': '',
-                             'DB_USER': '',
-                             'DB_PASSWORD': '',
+                             'DB_NAME': 'название базы данных',
+                             'DB_HOST': 'адрес БД',
+                             'DB_USER': 'пользователь для работы с БД',
+                             'DB_PASSWORD': 'пароль пользователя',
                              'LOG_DIR_PATH': current_path + '/' + 'log' + '/'
                              }
         with open(current_path + '/' + 'config.ini', 'w') as configfile:
