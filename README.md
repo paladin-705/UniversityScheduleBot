@@ -36,7 +36,7 @@ git clone https://github.com/paladin-705/UniversityScheduleBot.git
 cd UniversityScheduleBot
 pip install -r requirements.txt
 ```
-Скопируйте свой токен бота и данные для подключения к PostgreSQL БД в файл setup.py:
+Скопируйте свой токен бота и данные для подключения к PostgreSQL БД в файл setup.py (строки с 22 по 28):
 ```python
 'TOKEN': 'место для токена',
 'DB_NAME': 'название базы данных',
