@@ -54,7 +54,7 @@ def get_date_keyboard():
 def command_registration(m):
     # Статистика
     if config['STATISTIC_TOKEN'] != '':
-        track(config['STATISTIC_TOKEN'], m.chat.id, m, 'registration')
+        track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'registration')
     else:
         logger.info('registration', extra={'userid': m.chat.id})
 
@@ -180,7 +180,7 @@ def registration(data, cid, name, username):
 def command_start(m):
     # Статистика
     if config['STATISTIC_TOKEN'] != '':
-        track(config['STATISTIC_TOKEN'], m.chat.id, m, 'start')
+        track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'start')
     else:
         logger.info('start', extra={'userid': m.chat.id})
 
@@ -206,7 +206,7 @@ def command_start(m):
 def command_help(m):
     # Статистика
     if config['STATISTIC_TOKEN'] != '':
-        track(config['STATISTIC_TOKEN'], m.chat.id, m, 'help')
+        track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'help')
     else:
         logger.info('help', extra={'userid': m.chat.id})
 
@@ -234,7 +234,7 @@ def command_help(m):
 def command_send_report(m):
     # Статистика
     if config['STATISTIC_TOKEN'] != '':
-        track(config['STATISTIC_TOKEN'], m.chat.id, m, 'report')
+        track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'report')
     else:
         logger.info('report', extra={'userid': m.chat.id})
 
@@ -261,7 +261,7 @@ def command_send_report(m):
 def command_auto_posting_on(m):
     # Статистика
     if config['STATISTIC_TOKEN'] != '':
-        track(config['STATISTIC_TOKEN'], m.chat.id, m, 'auto_posting_on')
+        track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'auto_posting_on')
     else:
         logger.info('auto_posting_on', extra={'userid': m.chat.id})
 
@@ -303,7 +303,7 @@ def command_auto_posting_on(m):
 def command_auto_posting_off(m):
     # Статистика
     if config['STATISTIC_TOKEN'] != '':
-        track(config['STATISTIC_TOKEN'], m.chat.id, m, 'auto_posting_off')
+        track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'auto_posting_off')
     else:
         logger.info('auto_posting_off', extra={'userid': m.chat.id})
 
@@ -333,7 +333,7 @@ def response_msg(m):
     if m.text in ScheduleType:
         # Статистика
         if config['STATISTIC_TOKEN'] != '':
-            track(config['STATISTIC_TOKEN'], m.chat.id, m, 'schedule')
+            track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'schedule')
         else:
             logger.info('message: {0}'.format(m.text), extra={'userid': m.chat.id})
 
@@ -390,7 +390,7 @@ def response_msg(m):
     else:
         # Статистика
         if config['STATISTIC_TOKEN'] != '':
-            track(config['STATISTIC_TOKEN'], m.chat.id, m, 'unknown')
+            track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'unknown')
         else:
             logger.info('unknown message: {0}'.format(m.text), extra={'userid': m.chat.id})
 
