@@ -11,6 +11,7 @@ Wiki проекта: [UniversityScheduleBot Wiki](https://github.com/paladin-705
     .
     ├── config.py                         # Настройки бота
     ├── parser.py                         # Тестовый парсер расписания
+    ├── statistic.py                      # Отправка статистики на chatbase.com
     ├── scheduleCreator.py                # Функции для генерации сообщения с расписанием
     ├── scheduledb.py                     # Класс для работы с БД
     ├── setup.py                          # Скрипт для создания БД и директорий
@@ -58,6 +59,13 @@ python3 UniversityScheduleBot.py &
  2. Скопируйте свой токен и данные для подключения к PostgreSQL БД в файл setup.py
  3. Запустите setup.py
  4. Запустите UniversityScheduleBot.py
+
+Настройка сбора статистики
+------------
+Для того, чтобы подключить свой аккаунт на Сhatbase для сбора статистики, просто введите свой ключ в файл config.ini:
+```python
+'STATISTIC_TOKEN': 'место для ключа'
+```
 
 Поддерживаемые команды
 ------------
