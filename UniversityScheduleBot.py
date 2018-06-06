@@ -315,7 +315,7 @@ def command_auto_posting_off(m):
         db = ScheduleDB(config)
         user = db.find_user(cid)
         if user:
-            if db.set_auto_post_time(cid, "", None):
+            if db.set_auto_post_time(cid, None, None):
                 bot.send_message(cid, "Автоматическая отправка расписания успешно отключена")
             else:
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
