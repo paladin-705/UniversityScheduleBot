@@ -12,6 +12,10 @@ from config import config, daysOfWeek, ScheduleType
 from scheduleCreator import create_schedule_text
 from scheduledb import ScheduleDB, organization_field_length, faculty_field_length
 
+# Статистика
+from statistic import track
+
+
 bot = telebot.AsyncTeleBot(config["TOKEN"])
 
 apihelper.proxy = {'http':'http://{}:{}'.format(config["PROXY_IP"], config["PROXY_PORT"])}
@@ -48,8 +52,11 @@ def get_date_keyboard():
 # handle the "/registration" command
 @bot.message_handler(commands=['registration'])
 def command_registration(m):
-    # Логирование
-    logger.info('registration', extra={'userid': m.chat.id})
+    # Статистика
+    if config['STATISTIC_TOKEN'] != '':
+        track(config['STATISTIC_TOKEN'], m.chat.id, m, 'registration')
+    else:
+        logger.info('registration', extra={'userid': m.chat.id})
 
     registration("reg:stage 1: none", m.chat.id, m.chat.first_name, m.chat.username)
 
@@ -171,8 +178,11 @@ def registration(data, cid, name, username):
 # handle the "/start" command
 @bot.message_handler(commands=['start'])
 def command_start(m):
-    # Логирование
-    logger.info('start', extra={'userid': m.chat.id})
+    # Статистика
+    if config['STATISTIC_TOKEN'] != '':
+        track(config['STATISTIC_TOKEN'], m.chat.id, m, 'start')
+    else:
+        logger.info('start', extra={'userid': m.chat.id})
 
     cid = m.chat.id
     command_help(m)
@@ -194,8 +204,11 @@ def command_start(m):
 # help page
 @bot.message_handler(commands=['help'])
 def command_help(m):
-    # Логирование
-    logger.info('help', extra={'userid': m.chat.id})
+    # Статистика
+    if config['STATISTIC_TOKEN'] != '':
+        track(config['STATISTIC_TOKEN'], m.chat.id, m, 'help')
+    else:
+        logger.info('help', extra={'userid': m.chat.id})
 
     cid = m.chat.id
     help_text = "Доступны следующие команды: \n"
@@ -219,8 +232,11 @@ def command_help(m):
 # send_report handler
 @bot.message_handler(commands=['send_report'])
 def command_send_report(m):
-    # Логирование
-    logger.info('send_report', extra={'userid': m.chat.id})
+    # Статистика
+    if config['STATISTIC_TOKEN'] != '':
+        track(config['STATISTIC_TOKEN'], m.chat.id, m, 'report')
+    else:
+        logger.info('report', extra={'userid': m.chat.id})
 
     cid = m.chat.id
     data = m.text.split("/send_report")
@@ -243,8 +259,11 @@ def command_send_report(m):
 # handle the "/auto_posting_on" command
 @bot.message_handler(commands=['auto_posting_on'])
 def command_auto_posting_on(m):
-    # Логирование
-    logger.info('auto_posting_on', extra={'userid': m.chat.id})
+    # Статистика
+    if config['STATISTIC_TOKEN'] != '':
+        track(config['STATISTIC_TOKEN'], m.chat.id, m, 'auto_posting_on')
+    else:
+        logger.info('auto_posting_on', extra={'userid': m.chat.id})
 
     cid = m.chat.id
 
@@ -282,8 +301,11 @@ def command_auto_posting_on(m):
 
 @bot.message_handler(commands=['auto_posting_off'])
 def command_auto_posting_off(m):
-    # Логирование
-    logger.info('auto_posting_off', extra={'userid': m.chat.id})
+    # Статистика
+    if config['STATISTIC_TOKEN'] != '':
+        track(config['STATISTIC_TOKEN'], m.chat.id, m, 'auto_posting_off')
+    else:
+        logger.info('auto_posting_off', extra={'userid': m.chat.id})
 
     cid = m.chat.id
 
@@ -307,11 +329,14 @@ def command_auto_posting_off(m):
 # text message handler
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def response_msg(m):
-    # Логирование
-    logger.info('message: {0}'.format(m.text), extra={'userid': m.chat.id})
-
     cid = m.chat.id
     if m.text in ScheduleType:
+        # Статистика
+        if config['STATISTIC_TOKEN'] != '':
+            track(config['STATISTIC_TOKEN'], m.chat.id, m, 'schedule')
+        else:
+            logger.info('message: {0}'.format(m.text), extra={'userid': m.chat.id})
+
         # По умолчанию week_type равен -1 и при таком значении будут выводится все занятия, 
         # т.е и для чётных и для нечётных недель
         week_type = -1
@@ -363,6 +388,12 @@ def response_msg(m):
                 logger.warning('response_msg: {0}'.format(str(e)), extra={'userid': cid})
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
     else:
+        # Статистика
+        if config['STATISTIC_TOKEN'] != '':
+            track(config['STATISTIC_TOKEN'], m.chat.id, m, 'unknown')
+        else:
+            logger.info('unknown message: {0}'.format(m.text), extra={'userid': m.chat.id})
+
         bot.send_message(cid, "Неизвестная команда", reply_markup=get_date_keyboard())
 
 
