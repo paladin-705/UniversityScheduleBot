@@ -10,13 +10,13 @@ if os.path.exists(current_path + '/' + "config.ini"):
     config_file.read(current_path + '/' + "config.ini")
 else:
     config = {
-        'TOKEN': '',
+        'TOKEN': 'место для токена',
         'PROXY_IP': '127.0.0.1',
         'PROXY_PORT': '80',
-        'DB_NAME': 'bot',
-        'DB_HOST': 'localhost',
-        'DB_USER': 'postgres',
-        'DB_PASSWORD': 'kserks555',
+        'DB_NAME': 'название базы данных',
+        'DB_HOST': 'адрес БД',
+        'DB_USER': 'пользователь для работы с БД',
+        'DB_PASSWORD': 'пароль пользователя',
         'LOG_DIR_PATH': current_path + '/' + 'log',
         'WEEK_TYPE': '0',
         'STATISTIC_TOKEN': ''}
