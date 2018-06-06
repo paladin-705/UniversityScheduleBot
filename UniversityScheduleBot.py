@@ -425,8 +425,11 @@ def auto_posting(current_time):
                 continue
             bot.send_message(cid, schedule, reply_markup=get_date_keyboard())
 
-            # Логирование
-            logger.info('auto_posting. Time: {0}'.format(current_time), extra={'userid': cid})
+            # Статистика
+            if config['STATISTIC_TOKEN'] != '':
+                track(config['STATISTIC_TOKEN'], cid, current_time, 'auto_posting')
+            else:
+                logger.info('auto_posting. Time: {0}'.format(current_time), extra={'userid': cid})
     except BaseException as e:
         logger.warning('auto_posting: {0}'.format(str(e)), extra={'userid': 0})
 
@@ -452,8 +455,11 @@ def auto_posting(current_time):
                 continue
             bot.send_message(cid, schedule, reply_markup=get_date_keyboard())
 
-            # Логирование
-            logger.info('auto_posting. Time: {0}'.format(current_time), extra={'userid': cid})
+            # Статистика
+            if config['STATISTIC_TOKEN'] != '':
+                track(config['STATISTIC_TOKEN'], cid, current_time, 'auto_posting')
+            else:
+                logger.info('auto_posting. Time: {0}'.format(current_time), extra={'userid': cid})
     except BaseException as e:
         logger.warning('auto_posting: {0}'.format(str(e)), extra={'userid': 0})
 
