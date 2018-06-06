@@ -53,9 +53,7 @@ def get_date_keyboard():
 @bot.message_handler(commands=['registration'])
 def command_registration(m):
     # Статистика
-    if config['STATISTIC_TOKEN'] != '':
-        track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'registration')
-    else:
+    if config['STATISTIC_TOKEN'] == '':
         logger.info('registration', extra={'userid': m.chat.id})
 
     registration("reg:stage 1: none", m.chat.id, m.chat.first_name, m.chat.username)
@@ -107,6 +105,10 @@ def registration(data, cid, name, username):
     # reg : stage : tag
     callback_data = re.split(r':', data)
     stage = callback_data[1]
+
+    # Статистика
+    if config['STATISTIC_TOKEN'] != '':
+        track(config['STATISTIC_TOKEN'], cid, stage, 'registration')
 
     # Процедура регистрации проходит в четрые этапа:
     # 1 этап: выбор учебного заведения
