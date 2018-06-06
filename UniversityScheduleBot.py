@@ -6,17 +6,23 @@ from datetime import datetime, time, timedelta
 from time import sleep
 
 import telebot
-from telebot import types
+from telebot import types, apihelper
 
-import config
+from config import config, daysOfWeek, ScheduleType
 from scheduleCreator import create_schedule_text
 from scheduledb import ScheduleDB, organization_field_length, faculty_field_length
 
-bot = telebot.AsyncTeleBot(config.token)
+# Статистика
+from statistic import track
+
+
+bot = telebot.AsyncTeleBot(config["TOKEN"])
+
+apihelper.proxy = {'http':'http://{}:{}'.format(config["PROXY_IP"], config["PROXY_PORT"])}
 
 logging.basicConfig(format='%(asctime)-15s [ %(levelname)s ] uid=%(userid)s %(message)s',
                     filemode='a',
-                    filename=config.log_dir_patch + "log-{0}.log".format(datetime.now().strftime("%Y-%m-%d")),
+                    filename=config["LOG_DIR_PATH"] + "log-{0}.log".format(datetime.now().strftime("%Y-%m-%d")),
                     level="INFO")
 logger = logging.getLogger('bot-logger')
 
@@ -46,16 +52,18 @@ def get_date_keyboard():
 # handle the "/registration" command
 @bot.message_handler(commands=['registration'])
 def command_registration(m):
-    # Логирование
-    logger.info('registration', extra={'userid': m.chat.id})
+    # Статистика
+    if config['STATISTIC_TOKEN'] == '':
+        logger.info('registration', extra={'userid': m.chat.id})
 
     registration("reg:stage 1: none", m.chat.id, m.chat.first_name, m.chat.username)
 
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
+    cid = call.message.chat.id
+
     try:
-        cid = call.message.chat.id
         callback_data = re.split(r':', call.data)
         call_type = callback_data[0]
 
@@ -81,7 +89,7 @@ def callback_handler(call):
                                  reply_markup=get_date_keyboard())
                 return
 
-            with ScheduleDB() as db:
+            with ScheduleDB(config) as db:
                 if db.set_auto_post_time(cid, (hour + ":" + minutes + ":" + "00").rjust(8, '0'), is_today):
                     bot.send_message(cid, "Время установлено", reply_markup=get_date_keyboard())
                 else:
@@ -98,13 +106,17 @@ def registration(data, cid, name, username):
     callback_data = re.split(r':', data)
     stage = callback_data[1]
 
+    # Статистика
+    if config['STATISTIC_TOKEN'] != '':
+        track(config['STATISTIC_TOKEN'], cid, stage, 'registration')
+
     # Процедура регистрации проходит в четрые этапа:
     # 1 этап: выбор учебного заведения
     # 2 этап: выбор факультета
     # 3 этап: выбор группы
     # 4 этап: добавление данных о принадлежности пользователя к учебному заведению в БД
     try:
-        db = ScheduleDB()
+        db = ScheduleDB(config)
 
         if stage == "stage 1":
             keyboard = types.InlineKeyboardMarkup()
@@ -168,14 +180,17 @@ def registration(data, cid, name, username):
 # handle the "/start" command
 @bot.message_handler(commands=['start'])
 def command_start(m):
-    # Логирование
-    logger.info('start', extra={'userid': m.chat.id})
+    # Статистика
+    if config['STATISTIC_TOKEN'] != '':
+        track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'start')
+    else:
+        logger.info('start', extra={'userid': m.chat.id})
 
     cid = m.chat.id
     command_help(m)
 
     try:
-        with ScheduleDB() as db:
+        with ScheduleDB(config) as db:
             user = db.find_user(cid)
         if user and user[0] != "":
             bot.send_message(cid, "Вы уже добавлены в базу данных", reply_markup=get_date_keyboard())
@@ -191,8 +206,11 @@ def command_start(m):
 # help page
 @bot.message_handler(commands=['help'])
 def command_help(m):
-    # Логирование
-    logger.info('help', extra={'userid': m.chat.id})
+    # Статистика
+    if config['STATISTIC_TOKEN'] != '':
+        track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'help')
+    else:
+        logger.info('help', extra={'userid': m.chat.id})
 
     cid = m.chat.id
     help_text = "Доступны следующие команды: \n"
@@ -208,36 +226,46 @@ def command_help(m):
     
     guide_url = 'https://github.com/paladin-705/UniversityScheduleBot/wiki/Guide'
 
-    help_text = 'Более подробную инструкцию и описание команд (с инструкциями гифками! ^_^) вы можете посмотреть по ссылке: {}'.format(guide_url)
+    help_text = 'Более подробную инструкцию и описание команд (с инструкциями гифками! ^_^) \
+    вы можете посмотреть по ссылке: {}'.format(guide_url)
     bot.send_message(cid, help_text, reply_markup=get_date_keyboard())
 
 
 # send_report handler
 @bot.message_handler(commands=['send_report'])
 def command_send_report(m):
-    # Логирование
-    logger.info('send_report', extra={'userid': m.chat.id})
+    # Статистика
+    if config['STATISTIC_TOKEN'] != '':
+        track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'report')
+    else:
+        logger.info('report', extra={'userid': m.chat.id})
 
     cid = m.chat.id
     data = m.text.split("/send_report")
 
     if data[1] != '':
         report = data[1]
-        with ScheduleDB() as db:
+        with ScheduleDB(config) as db:
             if db.add_report(cid, report):
                 bot.send_message(cid, "Сообщение принято")
             else:
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
                                  reply_markup=get_date_keyboard())
     else:
-        bot.send_message(cid, "Вы отправили пустую строку. Пример: /send_report <сообщение>", reply_markup=get_date_keyboard())
+        bot.send_message(
+            cid,
+            "Вы отправили пустую строку. Пример: /send_report <сообщение>",
+            reply_markup=get_date_keyboard())
 
 
 # handle the "/auto_posting_on" command
 @bot.message_handler(commands=['auto_posting_on'])
 def command_auto_posting_on(m):
-    # Логирование
-    logger.info('auto_posting_on', extra={'userid': m.chat.id})
+    # Статистика
+    if config['STATISTIC_TOKEN'] != '':
+        track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'auto_posting_on')
+    else:
+        logger.info('auto_posting_on', extra={'userid': m.chat.id})
 
     cid = m.chat.id
 
@@ -251,7 +279,7 @@ def command_auto_posting_on(m):
         return None
 
     try:
-        db = ScheduleDB()
+        db = ScheduleDB(config)
         user = db.find_user(cid)
         if user and user[0] != "":
             keyboard = types.InlineKeyboardMarkup()
@@ -275,16 +303,19 @@ def command_auto_posting_on(m):
 
 @bot.message_handler(commands=['auto_posting_off'])
 def command_auto_posting_off(m):
-    # Логирование
-    logger.info('auto_posting_off', extra={'userid': m.chat.id})
+    # Статистика
+    if config['STATISTIC_TOKEN'] != '':
+        track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'auto_posting_off')
+    else:
+        logger.info('auto_posting_off', extra={'userid': m.chat.id})
 
     cid = m.chat.id
 
     try:
-        db = ScheduleDB()
+        db = ScheduleDB(config)
         user = db.find_user(cid)
         if user:
-            if db.set_auto_post_time(cid, "", None):
+            if db.set_auto_post_time(cid, None, None):
                 bot.send_message(cid, "Автоматическая отправка расписания успешно отключена")
             else:
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
@@ -300,22 +331,25 @@ def command_auto_posting_off(m):
 # text message handler
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def response_msg(m):
-    # Логирование
-    logger.info('message: {0}'.format(m.text), extra={'userid': m.chat.id})
-
     cid = m.chat.id
-    if m.text in config.ScheduleType:
+    if m.text in ScheduleType:
+        # Статистика
+        if config['STATISTIC_TOKEN'] != '':
+            track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'schedule')
+        else:
+            logger.info('message: {0}'.format(m.text), extra={'userid': m.chat.id})
+
         # По умолчанию week_type равен -1 и при таком значении будут выводится все занятия, 
         # т.е и для чётных и для нечётных недель
         week_type = -1
 
         if m.text == "Вся неделя":
-            days = config.ScheduleType[m.text]
+            days = ScheduleType[m.text]
         elif m.text == "Сегодня":
             today = datetime.now()
             # Если запрашивается расписание на сегодняшний день, 
             # то week_type равен остатку от деления на 2 номера недели в году, т.е он определяет чётная она или нечётная
-            week_type = today.isocalendar()[1] % 2
+            week_type = (today.isocalendar()[1] + int(config["WEEK_TYPE"])) % 2
 
             # Если сегодня воскресенье, то показывается расписание на понедельник следующей недели
             # Также в этом случае, как week_type используется тип следующей недели
@@ -323,27 +357,27 @@ def response_msg(m):
                 today += timedelta(days=1)
                 week_type = (week_type + 1) % 2
 
-            days = [config.daysOfWeek[datetime.weekday(today)]]
+            days = [daysOfWeek[datetime.weekday(today)]]
         elif m.text == 'Завтра':
             tomorrow = datetime.now()
             # Если запрашивается расписание на сегодняшний день,
             # то week_type равен остатку от деления на 2 номера недели в году, т.е он определяет чётная она или нечётная
-            week_type = (tomorrow.isocalendar()[1] + 0) % 2
+            week_type = (tomorrow.isocalendar()[1] + int(config["WEEK_TYPE"])) % 2
 
             tomorrow += timedelta(days=1)
             # Если сегодня воскресенье, то показывается расписание на понедельник следующей недели
             # Также в этом случае, как week_type используется тип следующей недели
             if datetime.weekday(tomorrow) == 6:
-               tomorrow += timedelta(days=1)
-               week_type = (week_type + 1) % 2
+                tomorrow += timedelta(days=1)
+                week_type = (week_type + 1) % 2
 
-            days = [config.daysOfWeek[datetime.weekday(tomorrow)]]
+            days = [daysOfWeek[datetime.weekday(tomorrow)]]
         else:
-            days = [config.ScheduleType[m.text]]
+            days = [ScheduleType[m.text]]
 
         for day in days:
             try:
-                with ScheduleDB() as db:
+                with ScheduleDB(config) as db:
                     user = db.find_user(cid)
                 if user and user[0] != "":
                     result = create_schedule_text(user[0], day, week_type)
@@ -356,21 +390,27 @@ def response_msg(m):
                 logger.warning('response_msg: {0}'.format(str(e)), extra={'userid': cid})
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
     else:
+        # Статистика
+        if config['STATISTIC_TOKEN'] != '':
+            track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'unknown')
+        else:
+            logger.info('unknown message: {0}'.format(m.text), extra={'userid': m.chat.id})
+
         bot.send_message(cid, "Неизвестная команда", reply_markup=get_date_keyboard())
 
 
 def auto_posting(current_time):
     today = datetime.now()
-    week_type = (today.isocalendar()[1]+1) % 2
+    week_type = (today.isocalendar()[1] + int(config["WEEK_TYPE"])) % 2
 
     if datetime.weekday(today) == 6:
         today += timedelta(days=1)
         week_type = (week_type + 1) % 2
 
-    day = [config.daysOfWeek[datetime.weekday(today)]]
+    day = [daysOfWeek[datetime.weekday(today)]]
 
     # Выборка пользователей из базы у которых установлена отправка расписния на текущий день
-    with ScheduleDB() as db:
+    with ScheduleDB(config) as db:
         users = db.find_users_where(auto_posting_time=current_time, is_today=True)
 
     if users is None:
@@ -395,9 +435,9 @@ def auto_posting(current_time):
     if datetime.weekday(datetime.now()) != 6:
         today += timedelta(days=1)
       
-    day = [config.daysOfWeek[datetime.weekday(today)]]
+    day = [daysOfWeek[datetime.weekday(today)]]
 
-    with ScheduleDB() as db:
+    with ScheduleDB(config) as db:
         users = db.find_users_where(auto_posting_time=current_time, is_today=False)
 
     if users is None:

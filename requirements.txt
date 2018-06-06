@@ -1,1 +1,3 @@
 pyTelegramBotAPI
+psycopg2
+git+git://github.com/google/chatbase-python.git

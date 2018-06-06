@@ -1,31 +1,43 @@
-CREATE TABLE users( 
-	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	name TEXT, username TEXT,
-	scheduleTag TEXT,
-	auto_posting_time TIME,
-	is_today BOOLEAN
+CREATE TABLE organizations
+(
+  id serial,
+  organization character(80),
+  faculty character(80),
+  studgroup character(20),
+  tag character(31)
 );
-CREATE TABLE organizations(
-	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	organization TEXT,
-	faculty TEXT,
-	studGroup TEXT,
-	tag TEXT
+
+CREATE TABLE schedule
+(
+  id serial,
+  tag character(31),
+  day character(10),
+  "number" smallint,
+  type smallint,
+  "startTime" time without time zone,
+  "endTime" time without time zone,
+  title character(100),
+  classroom character(20),
+  lecturer character(50)
 );
-CREATE TABLE schedule(
-	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	tag TEXT, day TEXT,
-	number INTEGER,
-	type TEXT,
-	startTime TEXT,
-	endTime TEXT,
-	title TEXT,
-	classroom TEXT,
-	lecturer TEXT
+
+CREATE TABLE users
+(
+  type character(2),
+  id integer,
+  name character(30),
+  username character(30),
+  "scheduleTag" character(31),
+  auto_posting_time time without time zone,
+  is_today boolean
 );
-CREATE TABLE reports (
-	report_id INTEGER PRIMARY KEY AUTOINCREMENT,
-	user_id INTEGER,
-	report TEXT,
-	date DATETIME
-);
+
+
+CREATE TABLE public.reports
+(
+  type character(2),
+  report_id serial,
+  user_id integer,
+  report text,
+  date date
+)

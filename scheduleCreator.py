@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from functools import lru_cache
 
-import config
+from config import config, daysOfWeek_rus
 import scheduledb
 
 
@@ -25,13 +25,16 @@ def create_schedule_text(tag, day, week_type=-1):
     result = []
     schedule = ""
     try:
-        with scheduledb.ScheduleDB() as db:
+        with scheduledb.ScheduleDB(config) as db:
             data = db.get_schedule(tag, day, week_type)
 
-        schedule += ">{0}:\n".format(config.daysOfWeek_rus[day])
+        schedule += ">{0}:\n".format(daysOfWeek_rus[day])
         index = 0
         while index < len(data):
             row = data[index]
+
+            title = ' '.join(str(row[1]).split())
+            classroom = ' '.join(str(row[2]).split())
 
             schedule += str(row[0]) + " пара:\n"
             # Этот блок нужен для вывода тех занятий, где занятия по числителю и знамнателю различаются
@@ -39,14 +42,14 @@ def create_schedule_text(tag, day, week_type=-1):
                 # Сравнивается порядковый номер занятия данной и следующей строки и если они равны,
                 # то они выводятся вместе
                 if data[index + 1][0] == row[0]:
-                    schedule += '{0} {1} {2}\n'.format(str(row[1]), str(row[2]), print_type(row[3], week_type))
+                    schedule += '{0} {1} {2}\n'.format(title, classroom, print_type(row[3], week_type))
                     index += 1
                     row = data[index]
-                    schedule += '{0} {1} {2}\n'.format(str(row[1]), str(row[2]), print_type(row[3], week_type))
+                    schedule += '{0} {1} {2}\n'.format(title, classroom, print_type(row[3], week_type))
                 else:
-                    schedule += '{0} {1} {2}\n'.format(str(row[1]), str(row[2]), print_type(row[3], week_type))
+                    schedule += '{0} {1} {2}\n'.format(title, classroom, print_type(row[3], week_type))
             else:
-                schedule += '{0} {1} {2}\n'.format(str(row[1]), str(row[2]), print_type(row[3], week_type))
+                schedule += '{0} {1} {2}\n'.format(title, classroom, print_type(row[3], week_type))
 
             schedule += "------------\n"
             index += 1

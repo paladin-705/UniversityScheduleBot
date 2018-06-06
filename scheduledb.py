@@ -1,9 +1,7 @@
 import hashlib
 import logging
-import sqlite3
+import psycopg2
 from datetime import datetime
-
-import config
 
 organization_field_length = 15
 faculty_field_length = 10
@@ -11,13 +9,13 @@ group_field_length = 5
 
 
 class ScheduleDB:
-    def __init__(self):
-        self.con = sqlite3.connect(config.db_path)
+    def __init__(self, config):
+        self.con = psycopg2.connect(dbname=config["DB_NAME"], user=config["DB_USER"], password=config["DB_PASSWORD"], host=config["DB_HOST"])
         self.cur = self.con.cursor()
 
         logging.basicConfig(format='%(asctime)-15s [ %(levelname)s ] %(message)s',
                             filemode='a',
-                            filename=config.log_dir_patch + "log-{0}.log".format(datetime.now().strftime("%Y-%m")))
+                            filename=config["LOG_DIR_PATH"] + "log-{0}.log".format(datetime.now().strftime("%Y-%m")))
         self.logger = logging.getLogger('db-logger')
 
     def __enter__(self):
@@ -38,8 +36,8 @@ class ScheduleDB:
 
     def add_lesson(self, tag, day, number, week_type, time_start, time_end, title, classroom, lecturer):
         try:
-            self.cur.execute("INSERT INTO schedule(tag, day, number, type, startTime, endTime, \
-                             title, classroom, lecturer) VALUES(?,?,?,?,?,?,?,?,?);",
+            self.cur.execute('INSERT INTO schedule(tag, day, "number", type, "startTime", "endTime", \
+                             title, classroom, lecturer) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s);',
                              (tag, day, number, week_type, time_start, time_end, title, classroom, lecturer))
             self.con.commit()
             return True
@@ -60,7 +58,7 @@ class ScheduleDB:
     def add_organization(self, organization, faculty, group):
         tag = self.create_tag(organization, faculty, group)
         try:
-            self.cur.execute("INSERT INTO organizations(organization, faculty, studGroup, tag) VALUES(?,?,?,?);",
+            self.cur.execute("INSERT INTO organizations(organization, faculty, studgroup, tag) VALUES(%s,%s,%s,%s);",
                              (organization, faculty, group, tag))
             self.con.commit()
             return tag
@@ -74,8 +72,8 @@ class ScheduleDB:
 
     def add_report(self, cid, report):
         try:
-            self.cur.execute('INSERT INTO reports (user_id, report, date) VALUES(?, ?, ?)',
-                             [cid, report, datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
+            self.cur.execute('INSERT INTO reports (type, user_id, report, date) VALUES(%s, %s, %s, %s)',
+                             ('tg', cid, report, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
             self.con.commit()
             return True
         except BaseException as e:
@@ -84,7 +82,7 @@ class ScheduleDB:
 
     def add_user(self, cid, name, username, tag):
         try:
-            self.cur.execute('INSERT INTO users VALUES(?,?,?,?,?,?)', [cid, name, username, tag, "", None])
+            self.cur.execute('INSERT INTO users VALUES(%s,%s,%s,%s,%s,null,null)', ('tg', cid, name, username, tag))
             self.con.commit()
             return True
         except BaseException as e:
@@ -94,7 +92,7 @@ class ScheduleDB:
 
     def update_user(self, cid, name, username, tag):
         try:
-            self.cur.execute('UPDATE users SET scheduleTag = (?) WHERE id = (?)', [tag, cid])
+            self.cur.execute('UPDATE users SET "scheduleTag" = (%s) WHERE id = (%s) AND type = (%s)', (tag, cid, 'tg'))
             self.con.commit()
             return True
         except BaseException as e:
@@ -104,7 +102,7 @@ class ScheduleDB:
 
     def find_user(self, cid):
         try:
-            self.cur.execute('SELECT scheduleTag FROM users WHERE id = (?)', [cid])
+            self.cur.execute('SELECT "scheduleTag" FROM users WHERE id = (%s) AND type = (%s)', (cid, 'tg'))
             return self.cur.fetchone()
         except BaseException as e:
             self.logger.warning('Select user failed. Error: {0}. Data: cid={1}'.format(str(e), cid))
@@ -113,19 +111,19 @@ class ScheduleDB:
     def find_users_where(self, auto_posting_time=None, is_today=None):
         try:
             if auto_posting_time is not None and is_today is not None:
-                self.cur.execute('SELECT id, scheduleTag FROM users WHERE auto_posting_time = (?) AND is_today = (?)',
-                                 [auto_posting_time, is_today])
+                self.cur.execute('SELECT id, "scheduleTag" FROM users WHERE auto_posting_time = %s AND is_today = %s  AND type = (%s)',
+                                 (auto_posting_time, is_today, 'tg'))
                 return self.cur.fetchall()
             elif auto_posting_time is not None:
-                self.cur.execute('SELECT id, scheduleTag FROM users WHERE auto_posting_time = (?)',
-                                 [auto_posting_time])
+                self.cur.execute('SELECT id, "scheduleTag" FROM users WHERE auto_posting_time = %s AND type = (%s)',
+                                 (auto_posting_time, 'tg'))
                 return self.cur.fetchall()
             elif is_today is not None:
-                self.cur.execute('SELECT id, scheduleTag FROM users WHERE is_today = (?)',
-                                 [is_today])
+                self.cur.execute('SELECT id, "scheduleTag" FROM users WHERE is_today = %s AND type = (%s)',
+                                 (is_today, 'tg'))
                 return self.cur.fetchall()
             else:
-                self.cur.execute('SELECT id, scheduleTag FROM users')
+                self.cur.execute('SELECT id, "scheduleTag" FROM users WHERE type = (%s)', ['tg'])
                 return self.cur.fetchall()
         except BaseException as e:
             self.logger.warning('Select users failed. Error: {0}. auto_posting_time={1}'.format(
@@ -137,11 +135,11 @@ class ScheduleDB:
         try:
             if week_type != -1:
                 self.cur.execute('SELECT number,title,classroom,type FROM schedule \
-                            WHERE tag = (?) AND day = (?) AND (type = 2 OR type = ?) \
-                            ORDER BY number, type ASC', [tag, day, week_type])
+                            WHERE tag = (%s) AND day = (%s) AND (type = 2 OR type = %s) \
+                            ORDER BY number, type ASC', (tag, day, week_type))
             else:
                 self.cur.execute('SELECT number,title,classroom,type FROM schedule \
-                            WHERE tag = (?) AND day = (?) ORDER BY number, type ASC', [tag, day])
+                            WHERE tag = (%s) AND day = (%s) ORDER BY number, type ASC', (tag, day))
             data = self.cur.fetchall()
         except BaseException as e:
             self.logger.warning('Select schedule failed. Error: {0}. Data: tag={1}, day={2}, week_type={3}'.format(
@@ -153,8 +151,8 @@ class ScheduleDB:
     def get_organizations(self, tag=""):
         organizations = []
         try:
-            self.cur.execute("SELECT organization, tag FROM organizations WHERE tag LIKE ? \
-            GROUP BY organization", [tag + '%'])
+            self.cur.execute("SELECT DISTINCT ON (organization) organization, tag \
+            FROM organizations WHERE tag LIKE %s ORDER BY organization;", [tag + '%'])
             organizations = self.cur.fetchall()
         except BaseException as e:
             self.logger.warning('Select schedule failed. Error: {0}. Data: tag={1}'.format(str(e), tag))
@@ -165,7 +163,8 @@ class ScheduleDB:
     def get_faculty(self, tag=""):
         faculties = []
         try:
-            self.cur.execute("SELECT faculty, tag FROM organizations WHERE tag LIKE ? GROUP BY faculty", [tag + '%'])
+            self.cur.execute("SELECT DISTINCT ON (faculty) faculty, tag \
+            FROM organizations WHERE tag LIKE %s ORDER BY faculty;", [tag + '%'])
             faculties = self.cur.fetchall()
         except BaseException as e:
             self.logger.warning('Select schedule failed. Error: {0}. Data: tag={1}'.format(str(e), tag))
@@ -176,7 +175,8 @@ class ScheduleDB:
     def get_group(self, tag=""):
         group = []
         try:
-            self.cur.execute("SELECT studGroup, tag FROM organizations WHERE tag LIKE ? GROUP BY studGroup",
+            self.cur.execute("SELECT DISTINCT ON (studGroup) studGroup, tag \
+            FROM organizations WHERE tag LIKE %s ORDER BY studGroup;",
                              [tag + '%'])
             group = self.cur.fetchall()
         except BaseException as e:
@@ -187,8 +187,9 @@ class ScheduleDB:
 
     def set_auto_post_time(self, cid, time, is_today):
         try:
-            self.cur.execute('UPDATE users SET auto_posting_time = (?), is_today = (?) WHERE id = (?)',
-                             [time, is_today, cid])
+            self.cur.execute('UPDATE users SET auto_posting_time = %s, is_today = %s \
+            WHERE id = %s AND type = (%s)',
+                             (time, is_today, cid, 'tg'))
             self.con.commit()
             return True
         except BaseException as e:
