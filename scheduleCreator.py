@@ -43,8 +43,12 @@ def create_schedule_text(tag, day, week_type=-1):
                 # то они выводятся вместе
                 if data[index + 1][0] == row[0]:
                     schedule += '{0} {1} {2}\n'.format(title, classroom, print_type(row[3], week_type))
+
                     index += 1
                     row = data[index]
+                    title = ' '.join(str(row[1]).split())
+                    classroom = ' '.join(str(row[2]).split())
+
                     schedule += '{0} {1} {2}\n'.format(title, classroom, print_type(row[3], week_type))
                 else:
                     schedule += '{0} {1} {2}\n'.format(title, classroom, print_type(row[3], week_type))
