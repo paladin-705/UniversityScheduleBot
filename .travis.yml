@@ -1,9 +1,18 @@
 language: python
+
 python:
     - "3.3"
     - "3.4"
     - "3.5"
+    
+services:
+  - postgresql
 
 install: "pip install -r requirements.txt"
+
+before_script:
+  - psql -c 'create database bot;' -U postgres
+  - sed -e 's/название базы данных/bot/; s/адрес БД/localhost/; s/пользователь для работы с БД/postgres/; s/пароль пользователя//' setup.py
+
 script:
     - python setup.py
