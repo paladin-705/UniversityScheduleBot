@@ -132,6 +132,8 @@ class TestScheduleDB(unittest.TestCase):
         self.assertEqual(real_data, data)
 
     def test_get_organizations(self):
+        self.maxDiff = None
+
         real_organizations = [('test_organization_01'.ljust(80), '1b110c6f26d3dd30429f0c0aa62028'),
                               ('test_organization_02'.ljust(80), '86de8e25b7f22ce0429f0c0aa62028'),
                               ('test_organization_03'.ljust(80), '2e93e910b8dde740429f0c0aa7d7d9')]
