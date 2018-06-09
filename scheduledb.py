@@ -203,8 +203,15 @@ class ScheduleDB:
             self.cur.execute('DELETE FROM organizations;')
             self.cur.execute('DELETE FROM schedule;')
             self.cur.execute('DELETE FROM reports;')
+
+            old_isolation_level = self.con.isolation_level
+            self.con.set_isolation_level(0)
+
             self.cur.execute('VACUUM')
             self.con.commit()
+
+            self.con.set_isolation_level(old_isolation_level)
+
             return True
         except BaseException as e:
             self.logger.warning('clear tables failed. Error: {0}.'.format(

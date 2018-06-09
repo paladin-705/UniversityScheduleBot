@@ -11,7 +11,7 @@ import scheduledb
 class TestScheduleCreator(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        with scheduledb.ScheduleDB() as db:
+        with scheduledb.ScheduleDB(scheduledb) as db:
             cls.tag = db.add_organization('test_organization', 'test_faculty', 'test_group')
             db.add_lesson(cls.tag, "Monday", 1, 2, "08:30", "09:30", "ma_lesson_1", "cr_401", "lect_1")
             db.add_lesson(cls.tag, "Monday", 2, 0, "09:30", "10:30", "mo_lesson_2", "cr_402", "lect_2_odd")
