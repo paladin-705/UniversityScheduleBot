@@ -9,6 +9,9 @@ Wiki проекта: [UniversityScheduleBot Wiki](https://github.com/paladin-705
 Структура репозитория
 ------------
     .
+    ├── tests                             # Юнит-тесты для бота
+    │   ├── test_scheduleCreator.py
+    │   └── test_scheduledb.py
     ├── config.py                         # Настройки бота
     ├── parser.py                         # Тестовый парсер расписания
     ├── statistic.py                      # Отправка статистики на chatbase.com
