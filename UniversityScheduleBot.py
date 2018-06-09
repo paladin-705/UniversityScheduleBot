@@ -106,10 +106,6 @@ def registration(data, cid, name, username):
     callback_data = re.split(r':', data)
     stage = callback_data[1]
 
-    # Статистика
-    if config['STATISTIC_TOKEN'] != '':
-        track(config['STATISTIC_TOKEN'], cid, stage, 'registration')
-
     # Процедура регистрации проходит в четрые этапа:
     # 1 этап: выбор учебного заведения
     # 2 этап: выбор факультета
@@ -119,6 +115,10 @@ def registration(data, cid, name, username):
         db = ScheduleDB(config)
 
         if stage == "stage 1":
+            # Статистика
+            if config['STATISTIC_TOKEN'] != '':
+                track(config['STATISTIC_TOKEN'], cid, stage, 'registration-stage-1')
+
             keyboard = types.InlineKeyboardMarkup()
 
             result = db.get_organizations()
@@ -130,6 +130,10 @@ def registration(data, cid, name, username):
 
             bot.send_message(cid, "Выберите университет:", reply_markup=keyboard)
         elif stage == "stage 2":
+            # Статистика
+            if config['STATISTIC_TOKEN'] != '':
+                track(config['STATISTIC_TOKEN'], cid, stage, 'registration-stage-2')
+
             keyboard = types.InlineKeyboardMarkup()
 
             organization_id = callback_data[2]
@@ -143,6 +147,10 @@ def registration(data, cid, name, username):
 
             bot.send_message(cid, "Выберите факультет:", reply_markup=keyboard)
         elif stage == "stage 3":
+            # Статистика
+            if config['STATISTIC_TOKEN'] != '':
+                track(config['STATISTIC_TOKEN'], cid, stage, 'registration-stage-3')
+
             keyboard = types.InlineKeyboardMarkup()
 
             faculty_id = callback_data[2]
@@ -155,6 +163,10 @@ def registration(data, cid, name, username):
 
             bot.send_message(cid, "Выберите группу:", reply_markup=keyboard)
         elif stage == "stage 4":
+            # Статистика
+            if config['STATISTIC_TOKEN'] != '':
+                track(config['STATISTIC_TOKEN'], cid, stage, 'registration-stage-4')
+
             group_id = callback_data[2]
             row = db.get_group(group_id)
 
@@ -171,7 +183,9 @@ def registration(data, cid, name, username):
                                   " введя команду /auto_posting_on <время>, "
                                   "где <время> должно иметь формат ЧЧ:ММ")
         else:
-            print("unknown stage")
+            # Статистика
+            if config['STATISTIC_TOKEN'] != '':
+                track(config['STATISTIC_TOKEN'], cid, 'unknown stage', 'unknown')
     except BaseException as e:
         logger.warning('Registration problem: {0}'.format(str(e)), extra={'userid': cid})
         bot.send_message(cid, "Случилось что-то странное, попробуйте начать сначала, введя команду /registration")
