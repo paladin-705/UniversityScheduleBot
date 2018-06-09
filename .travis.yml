@@ -16,3 +16,5 @@ before_script:
 
 script:
     - python setup.py
+    - python -m unittest discover tests
+
