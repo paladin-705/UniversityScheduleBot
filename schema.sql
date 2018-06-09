@@ -4,13 +4,13 @@ CREATE TABLE organizations
   organization character(80),
   faculty character(80),
   studgroup character(20),
-  tag character(31)
+  tag character(30)
 );
 
 CREATE TABLE schedule
 (
   id serial,
-  tag character(31),
+  tag character(30),
   day character(10),
   "number" smallint,
   type smallint,
@@ -27,7 +27,7 @@ CREATE TABLE users
   id integer,
   name character(30),
   username character(30),
-  "scheduleTag" character(31),
+  "scheduleTag" character(30),
   auto_posting_time time without time zone,
   is_today boolean
 );
