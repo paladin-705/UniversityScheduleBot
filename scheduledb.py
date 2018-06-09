@@ -199,10 +199,11 @@ class ScheduleDB:
 
     def clear_tables(self):
         try:
-            self.cur.execute('DELETE FROM users;')
-            self.cur.execute('DELETE FROM organizations;')
-            self.cur.execute('DELETE FROM schedule;')
-            self.cur.execute('DELETE FROM reports;')
+            self.cur.execute('TRUNCATE users;')
+            self.cur.execute('TRUNCATE organizations;')
+            self.cur.execute('TRUNCATE schedule;')
+            self.cur.execute('TRUNCATE reports;')
+            self.con.commit()
 
             old_isolation_level = self.con.isolation_level
             self.con.set_isolation_level(0)
