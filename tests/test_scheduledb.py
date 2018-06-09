@@ -83,10 +83,10 @@ class TestScheduleDB(unittest.TestCase):
         self.assertEqual([(user_data[0][0], user_data[0][3]), (user_data[1][0], user_data[1][3])], users)
 
     def test_get_schedule_all_week_types(self):
-        real_data = [(1, 'ma_lesson_1', 'cr_401', '2'),
-                     (2, 'mo_lesson_2', 'cr_402', '0'),
-                     (2, 'me_lesson_2', 'cr_403', '1'),
-                     (3, 'ma_lesson_3', 'cr_404', '2')]
+        real_data = [(1, 'ma_lesson_1'.ljust(100), 'cr_401'.ljust(20), 2),
+                     (2, 'mo_lesson_2'.ljust(100), 'cr_402'.ljust(20), 0),
+                     (2, 'me_lesson_2'.ljust(100), 'cr_403'.ljust(20), 1),
+                     (3, 'ma_lesson_3'.ljust(100), 'cr_404'.ljust(20), 2)]
 
         tag = "test_tag_all_week_types"
         self.db.add_lesson(tag, "Monday", 1, 2, "08:30", "09:30", "ma_lesson_1", "cr_401", "lect_1")
@@ -100,9 +100,9 @@ class TestScheduleDB(unittest.TestCase):
         self.assertEqual(real_data, data)
 
     def test_get_schedule_odd_week_type(self):
-        real_data = [(1, 'ma_lesson_1', 'cr_401', '2'),
-                     (2, 'mo_lesson_2', 'cr_402', '0'),
-                     (3, 'ma_lesson_3', 'cr_404', '2')]
+        real_data = [(1, 'ma_lesson_1'.ljust(100), 'cr_401'.ljust(20), 2),
+                     (2, 'mo_lesson_2'.ljust(100), 'cr_402'.ljust(20), 0),
+                     (3, 'ma_lesson_3'.ljust(100), 'cr_404'.ljust(20), 2)]
 
         tag = "test_tag_odd_week_type"
         self.db.add_lesson(tag, "Monday", 1, 2, "08:30", "09:30", "ma_lesson_1", "cr_401", "lect_1")
@@ -116,9 +116,9 @@ class TestScheduleDB(unittest.TestCase):
         self.assertEqual(real_data, data)
 
     def test_get_schedule_even_week_type(self):
-        real_data = [(1, 'ma_lesson_1', 'cr_401', '2'),
-                     (2, 'me_lesson_2', 'cr_403', '1'),
-                     (3, 'ma_lesson_3', 'cr_404', '2')]
+        real_data = [(1, 'ma_lesson_1'.ljust(100), 'cr_401'.ljust(20), 2),
+                     (2, 'me_lesson_2'.ljust(100), 'cr_403'.ljust(20), 1),
+                     (3, 'ma_lesson_3'.ljust(100), 'cr_404'.ljust(20), 2)]
 
         tag = "test_tag_even_week_type"
         self.db.add_lesson(tag, "Monday", 1, 2, "08:30", "09:30", "ma_lesson_1", "cr_401", "lect_1")

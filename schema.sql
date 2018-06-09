@@ -33,7 +33,7 @@ CREATE TABLE users
 );
 
 
-CREATE TABLE public.reports
+CREATE TABLE reports
 (
   type character(2),
   report_id serial,
