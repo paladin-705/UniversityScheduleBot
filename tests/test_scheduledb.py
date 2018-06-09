@@ -132,9 +132,9 @@ class TestScheduleDB(unittest.TestCase):
         self.assertEqual(real_data, data)
 
     def test_get_organizations(self):
-        real_organizations = [('test_organization_01', '1b110c6f26d3dd30429f0c0aa62028'),
-                              ('test_organization_02', '86de8e25b7f22ce0429f0c0aa62028'),
-                              ('test_organization_03', '2e93e910b8dde740429f0c0aa7d7d9')]
+        real_organizations = [('test_organization_01'.ljust(80), '1b110c6f26d3dd30429f0c0aa62028'),
+                              ('test_organization_02'.ljust(80), '86de8e25b7f22ce0429f0c0aa62028'),
+                              ('test_organization_03'.ljust(80), '2e93e910b8dde740429f0c0aa7d7d9')]
 
         self.db.add_organization("test_organization_01", "test_faculty", "test_group_1")
         self.db.add_organization("test_organization_01", "test_faculty", "test_group_2")
@@ -148,8 +148,8 @@ class TestScheduleDB(unittest.TestCase):
         self.assertEqual(organizations, real_organizations)
 
     def test_get_faculty(self):
-        real_faculty = [('test_faculty_11', '07039519f908f09072827d0ed7d7d9'),
-                        ('test_faculty_12', '07039519f908f09f4a63a885d62028')]
+        real_faculty = [('test_faculty_11'.ljust(80), '07039519f908f09072827d0ed7d7d9'),
+                        ('test_faculty_12'.ljust(80), '07039519f908f09f4a63a885d62028')]
 
         tag = self.db.add_organization("test_organization_11", "test_faculty_11", "test_group_1")
         self.db.add_organization("test_organization_11", "test_faculty_12", "test_group_2")
@@ -163,8 +163,8 @@ class TestScheduleDB(unittest.TestCase):
         self.assertEqual(faculty, real_faculty)
 
     def test_get_group(self):
-        real_groups = [('test_group_1', 'dcbd54fa7339d17072827d0ed7d7d9'),
-                       ('test_group_2', 'dcbd54fa7339d17072827d0ed62028')]
+        real_groups = [('test_group_1'.ljust(20), 'dcbd54fa7339d17072827d0ed7d7d9'),
+                       ('test_group_2'.ljust(20), 'dcbd54fa7339d17072827d0ed62028')]
 
         tag = self.db.add_organization("test_organization_21", "test_faculty_11", "test_group_1")
         self.db.add_organization("test_organization_21", "test_faculty_11", "test_group_2")
