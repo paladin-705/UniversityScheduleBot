@@ -12,12 +12,22 @@ def send_statistic(token, uid, message, intent, user_type=None):
                           message=message,
                           type=user_type)
         else:
-            msg = Message(api_key=token,
-                          platform="tg",
-                          version="0.1",
-                          user_id=uid,
-                          message=message,
-                          intent=intent)
+            if intent != 'unknown':
+                msg = Message(api_key=token,
+                              platform="tg",
+                              version="0.1",
+                              user_id=uid,
+                              message=message,
+                              intent=intent)
+            else:
+                msg = Message(api_key=token,
+                              platform="tg",
+                              version="0.1",
+                              user_id=uid,
+                              message=message,
+                              intent=intent,
+                              not_handled=True)
+
         return str(msg.send())
     except:
         pass
