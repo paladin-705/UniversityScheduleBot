@@ -11,20 +11,21 @@ if os.path.exists(current_path + '/' + "config.ini"):
 else:
     config = {
         'TOKEN': 'место для токена',
-        'PROXY_IP': '127.0.0.1',
-        'PROXY_PORT': '80',
+        'WEBHOOK_HOST': '',
+        'WEBHOOK_PORT': '',
+        'WEBHOOK_SSL_CERT': '',
+        'WEBHOOK_SSL_PRIV': '',
         'DB_NAME': 'название базы данных',
         'DB_HOST': 'адрес БД',
         'DB_USER': 'пользователь для работы с БД',
         'DB_PASSWORD': 'пароль пользователя',
-        'LOG_DIR_PATH': current_path + '/' + 'log',
+        'LOG_DIR_PATH': current_path + '/' + 'log' + '/',
         'WEEK_TYPE': '0',
         'STATISTIC_TOKEN': ''}
     with open(current_path + '/' + 'config.ini', 'w') as configfile:
         config_file.write(configfile)
 
-token = config["TOKEN"]
-log_dir_patch = config["LOG_DIR_PATH"] + "/"
+
 daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 ScheduleType = {

@@ -20,8 +20,10 @@ if __name__ == "__main__":
         config.read(current_path + '/' + "config.ini")
     else:
         config['DEFAULT'] = {'TOKEN': 'место для токена',
-                             'PROXY_IP': '127.0.0.1',
-                             'PROXY_PORT': '80',
+                             'WEBHOOK_HOST': '',
+                             'WEBHOOK_PORT': '',
+                             'WEBHOOK_SSL_CERT': '',
+                             'WEBHOOK_SSL_PRIV': '',
                              'DB_NAME': 'название базы данных',
                              'DB_HOST': 'адрес БД',
                              'DB_USER': 'пользователь для работы с БД',
