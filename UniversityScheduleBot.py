@@ -354,7 +354,7 @@ def exams(m):
 
     # Если пользователя нет в базе, то ему выведет предложение зарегистрироваться
     try:
-        with ScheduleDB(app.config) as db:
+        with ScheduleDB(config) as db:
             user = db.find_user(cid)
         if not user or user[0] == '':
             message = "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации:\n"
@@ -367,7 +367,7 @@ def exams(m):
                          reply_markup=get_date_keyboard())
 
     try:
-        with ScheduleDB(app.config) as db:
+        with ScheduleDB(config) as db:
             exams_list = db.get_exams(user[0])
 
         message = ''
