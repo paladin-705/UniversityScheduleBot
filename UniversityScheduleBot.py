@@ -478,4 +478,5 @@ web.run_app(
     host=config["WEBHOOK_LISTEN"],
     port=config["WEBHOOK_PORT"],
     ssl_context=context,
+    access_log=None
 )
