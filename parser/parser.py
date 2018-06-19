@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import re
+import sys
 
 import xlrd
 
+sys.path.append('../')
 import config
 import scheduledb
 
