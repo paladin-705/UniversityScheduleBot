@@ -2,7 +2,7 @@ import psycopg2
 import sys
 sys.path.append('../')
 
-from config import config
+import config
 
 
 def init_db(name, user, pasw, host, schema_path):
@@ -14,10 +14,10 @@ def init_db(name, user, pasw, host, schema_path):
 # Настройка базы данных
 try:
     init_db(
-        name=config["DEFAULT"]["DB_NAME"],
-        user=config["DEFAULT"]["DB_USER"],
-        pasw=config["DEFAULT"]["DB_PASSWORD"],
-        host=config["DEFAULT"]["DB_HOST"],
-        schema_path=current_path + "/" + "schema.sql")
+        name=config.config["DEFAULT"]["DB_NAME"],
+        user=config.config["DEFAULT"]["DB_USER"],
+        pasw=config.config["DEFAULT"]["DB_PASSWORD"],
+        host=config.config["DEFAULT"]["DB_HOST"],
+        schema_path=config.current_path + "/" + "schema.sql")
 except BaseException as e:
     print(str(e))
