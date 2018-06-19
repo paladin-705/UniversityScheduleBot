@@ -15,6 +15,7 @@ before_script:
   - sed -i 's/название базы данных/test_db/; s/адрес БД/localhost/; s/пользователь для работы с БД/postgres/; s/пароль пользователя//' setup.py
 
 script:
-    - python setup.py
+    - python install/setup.py
+    - python install/setup_db.py
     - python -m unittest discover tests
 
