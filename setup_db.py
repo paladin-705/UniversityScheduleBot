@@ -11,10 +11,10 @@ def init_db(name, user, pasw, host, schema_path):
 # Настройка базы данных
 try:
     init_db(
-        name=config.config["DEFAULT"]["DB_NAME"],
-        user=config.config["DEFAULT"]["DB_USER"],
-        pasw=config.config["DEFAULT"]["DB_PASSWORD"],
-        host=config.config["DEFAULT"]["DB_HOST"],
+        name=config.config["DB_NAME"],
+        user=config.config["DB_USER"],
+        pasw=config.config["DB_PASSWORD"],
+        host=config.config["DB_HOST"],
         schema_path=config.current_path + "/" + "schema.sql")
 except BaseException as e:
     print(str(e))
