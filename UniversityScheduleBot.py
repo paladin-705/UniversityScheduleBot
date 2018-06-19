@@ -275,6 +275,50 @@ def command_send_report(m):
             "Вы отправили пустую строку. Пример: /send_report <сообщение>",
             reply_markup=get_date_keyboard())
 
+# handle the "/auto_posting_on" command
+@bot.message_handler(commands=['Экзамены'])
+def exams(m):
+    cid = m.chat.id
+
+    # Статистика
+    track(app.config['STATISTIC_TOKEN'], cid, m.text, 'exams')
+
+    # Если пользователя нет в базе, то ему выведет предложение зарегистрироваться
+    try:
+        with ScheduleDB(app.config) as db:
+            user = db.find_user(cid)
+        if not user or user[0] == '':
+            message = "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации:\n"
+            message += 'Введите команду(без кавычек):\n\nрегистрация "название вуза" "факультет" "группа"\n\n'
+            message += 'Если вы допустите ошибку, то просто наберите команду заново.\n'
+
+            bot.send_message(cid, message, reply_markup=get_date_keyboard())
+    except BaseException as e:
+        bot.send_message(cid, 'Случилось что то странное, попробуйте ввести команду заново',
+                         reply_markup=get_date_keyboard())
+
+    try:
+        with ScheduleDB(app.config) as db:
+            exams_list = db.get_exams(user[0])
+
+        message = ''
+        for exam in exams_list:
+            message += exam[0].strftime('%d.%m.%Y') + ":\n"
+
+            title = ' '.join(str(exam[1]).split())
+            lecturer = ' '.join(str(exam[2]).split())
+            classroom = ' '.join(str(exam[3]).split())
+
+            message += title + ' | ' + lecturer + ' | ' + classroom + "\n";
+            message += "------------\n"
+        if len(message) == 0:
+            message = 'Похоже расписания экзаменов для вашей группы нет в базе'
+
+    except BaseException as e:
+        message = "Случилось что то странное, попробуйте ввести команду заново"
+
+    bot.send_message(cid, message, reply_markup=get_date_keyboard())
+
 
 # handle the "/auto_posting_on" command
 @bot.message_handler(commands=['auto_posting_on'])
