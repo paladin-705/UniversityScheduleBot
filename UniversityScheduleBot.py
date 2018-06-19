@@ -404,9 +404,7 @@ def response_msg(m):
         # т.е и для чётных и для нечётных недель
         week_type = -1
 
-        if m.text == "Экзамены":
-            exams(m)
-        elif m.text == "Вся неделя":
+        if m.text == "Вся неделя":
             days = ScheduleType[m.text]
         elif m.text == "Сегодня":
             today = datetime.now()
@@ -452,6 +450,8 @@ def response_msg(m):
             except BaseException as e:
                 logger.warning('response_msg: {0}'.format(str(e)), extra={'userid': cid})
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
+    elif m.text == "Экзамены":
+        exams(m)
     else:
         # Статистика
         if config['STATISTIC_TOKEN'] != '':
