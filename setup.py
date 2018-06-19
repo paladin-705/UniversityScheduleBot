@@ -7,7 +7,7 @@ if __name__ == "__main__":
     # Считывание конфигурационного файла или его создание с настройками по умолчанию
     config = configparser.ConfigParser()
 
-    current_path = os.path.abspath(os.path.dirname(__file__))[:-7]
+    current_path = os.path.abspath(os.path.dirname(__file__))
     if os.path.exists(current_path + '/' + "config.ini"):
         config.read(current_path + '/' + "config.ini")
     else:
