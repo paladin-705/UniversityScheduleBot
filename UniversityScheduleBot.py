@@ -350,7 +350,7 @@ def exams(m):
     cid = m.chat.id
 
     # Статистика
-    track(app.config['STATISTIC_TOKEN'], cid, m.text, 'exams')
+    track(config['STATISTIC_TOKEN'], cid, m.text, 'exams')
 
     # Если пользователя нет в базе, то ему выведет предложение зарегистрироваться
     try:
