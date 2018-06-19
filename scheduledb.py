@@ -130,6 +130,17 @@ class ScheduleDB:
                 str(e), auto_posting_time))
             raise e
 
+    def get_exams(self, tag):
+        exams = []
+        try:
+            self.cur.execute("SELECT day, title, classroom, lecturer  FROM examinations WHERE tag = (%s) ORDER BY day", [str(tag)])
+            exams = self.cur.fetchall()
+        except BaseException as e:
+            self.logger.warning('Select exams failed. Error: {0}. Data: tag={1}'.format(str(e), tag))
+            raise e
+        finally:
+            return exams
+
     def get_schedule(self, tag, day, week_type=-1):
         data = []
         try:
