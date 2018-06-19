@@ -12,19 +12,37 @@ from config import config, daysOfWeek, ScheduleType
 from scheduleCreator import create_schedule_text
 from scheduledb import ScheduleDB, organization_field_length, faculty_field_length
 
+import ssl
+from aiohttp import web
+
 # Статистика
 from statistic import track
 
+WEBHOOK_URL_BASE = "https://{}:{}".format(config["WEBHOOK_HOST"], config["WEBHOOK_PORT"])
+WEBHOOK_URL_PATH = "/{}/".format(config["TOKEN"])
 
 bot = telebot.AsyncTeleBot(config["TOKEN"])
 
-apihelper.proxy = {'http':'http://{}:{}'.format(config["PROXY_IP"], config["PROXY_PORT"])}
 
 logging.basicConfig(format='%(asctime)-15s [ %(levelname)s ] uid=%(userid)s %(message)s',
                     filemode='a',
                     filename=config["LOG_DIR_PATH"] + "log-{0}.log".format(datetime.now().strftime("%Y-%m-%d")),
                     level="INFO")
 logger = logging.getLogger('bot-logger')
+
+app = web.Application()
+
+
+async def handle(request):
+    if request.match_info.get('token') == bot.token:
+        request_body_dict = await request.json()
+        update = telebot.types.Update.de_json(request_body_dict)
+        bot.process_new_updates([update])
+        return web.Response()
+    else:
+        return web.Response(status=403)
+
+app.router.add_post('/{token}/', handle)
 
 commands = {  # Описание команд используещееся в команде "help"
     'start': 'Стартовое сообщение и предложение зарегистрироваться',
@@ -487,13 +505,21 @@ def auto_posting_thread():
         sleep(60 - time_delta.seconds)
 
 
-def main():
-    # auto posting thread
-    threading.Thread(target=auto_posting_thread).start()
+# Remove webhook, it fails sometimes the set if there is a previous webhook
+bot.remove_webhook()
 
-    # bot polling
-    bot.polling()
+# Set webhook
+bot.set_webhook(url=WEBHOOK_URL_BASE+WEBHOOK_URL_PATH,
+                certificate=open(config["WEBHOOK_SSL_CERT"], 'r'))
 
+# Build ssl context
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+context.load_cert_chain(config["WEBHOOK_SSL_CERT"], config["WEBHOOK_SSL_PRIV"])
 
-if __name__ == "__main__":
-    main()
+# Start aiohttp server
+web.run_app(
+    app,
+    host=config["WEBHOOK_LISTEN"],
+    port=config["WEBHOOK_PORT"],
+    ssl_context=context,
+)

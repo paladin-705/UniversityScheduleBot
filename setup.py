@@ -22,6 +22,7 @@ if __name__ == "__main__":
         config['DEFAULT'] = {'TOKEN': 'место для токена',
                              'WEBHOOK_HOST': '',
                              'WEBHOOK_PORT': '',
+                             'WEBHOOK_LISTEN': '0.0.0.0',
                              'WEBHOOK_SSL_CERT': '',
                              'WEBHOOK_SSL_PRIV': '',
                              'DB_NAME': 'название базы данных',
