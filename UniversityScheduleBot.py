@@ -416,8 +416,6 @@ def callback_registration(call):
     cid = call.message.chat.id
 
     try:
-        callback_data = re.split(r':', call.data)
-
         registration(call.data, cid, call.message.chat.first_name, call.message.chat.username)
 
     except BaseException as e:
@@ -472,11 +470,17 @@ def index():
     return ''
 
 
+@app.route("/remove_webhook", methods=["GET", "HEAD"])
+def reset_webhook():
+    bot.remove_webhook()
+    return "ok", 200
+
+
 @app.route("/reset_webhook", methods=["GET", "HEAD"])
 def reset_webhook():
     bot.remove_webhook()
     bot.set_webhook(url=WEBHOOK_URL_BASE+WEBHOOK_URL_PATH, certificate=open(config["WEBHOOK_SSL_CERT"], 'r'))
-    return "OK", 200
+    return "ok", 200
 
 
 # Process webhook calls
