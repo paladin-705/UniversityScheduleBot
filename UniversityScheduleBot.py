@@ -471,7 +471,7 @@ def index():
 
 
 @app.route("/remove_webhook", methods=["GET", "HEAD"])
-def reset_webhook():
+def remove_webhook():
     bot.remove_webhook()
     return "ok", 200
 
