@@ -12,7 +12,7 @@ from scheduleCreator import create_schedule_text
 from scheduledb import ScheduleDB, organization_field_length, faculty_field_length
 
 import ssl
-from aiohttp import web
+import flask
 
 # Статистика
 from statistic import track
@@ -23,25 +23,12 @@ WEBHOOK_URL_PATH = "/{}/".format(config["TOKEN"])
 bot = telebot.AsyncTeleBot(config["TOKEN"])
 
 
-logging.basicConfig(format='%(asctime)-15s [ %(levelname)s ] uid=%(userid)s %(message)s',
-                    filemode='a',
-                    filename=config["LOG_DIR_PATH"] + "log-{0}.log".format(datetime.now().strftime("%Y-%m-%d")),
-                    level="INFO")
-logger = logging.getLogger('bot-logger')
-
-app = web.Application()
-
-
-async def handle(request):
-    if request.match_info.get('token') == bot.token:
-        request_body_dict = await request.json()
-        update = telebot.types.Update.de_json(request_body_dict)
-        bot.process_new_updates([update])
-        return web.Response()
-    else:
-        return web.Response(status=403)
-
-app.router.add_post('/{token}/', handle)
+#logging.basicConfig(format='%(asctime)-15s [ %(levelname)s ] uid=%(userid)s %(message)s',
+#                    filemode='a',
+#                    filename=config["LOG_DIR_PATH"] + "log-{0}.log".format(datetime.now().strftime("%Y-%m-%d")),
+#                    level="INFO")
+#logger = logging.getLogger('bot-logger')
+logger = telebot.logger
 
 commands = {  # Описание команд используещееся в команде "help"
     'start': 'Стартовое сообщение и предложение зарегистрироваться',
@@ -58,7 +45,7 @@ commands = {  # Описание команд используещееся в к
 def command_registration(m):
     # Статистика
     if config['STATISTIC_TOKEN'] == '':
-        logger.info('registration', extra={'userid': m.chat.id})
+        logger.info('registration')
 
     registration("reg:stage 1: none", m.chat.id, m.chat.first_name, m.chat.username)
 
@@ -100,7 +87,7 @@ def callback_handler(call):
                     bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
                                      reply_markup=get_date_keyboard())
     except BaseException as e:
-        logger.warning('command auto_posting_off: {0}'.format(str(e)), extra={'userid': cid})
+        logger.warning('command auto_posting_off: {0}'.format(str(e)))
         bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
 
 
@@ -191,7 +178,7 @@ def registration(data, cid, name, username):
             if config['STATISTIC_TOKEN'] != '':
                 track(config['STATISTIC_TOKEN'], cid, 'unknown stage', 'unknown')
     except BaseException as e:
-        logger.warning('Registration problem: {0}'.format(str(e)), extra={'userid': cid})
+        logger.warning('Registration problem: {0}'.format(str(e)))
         bot.send_message(cid, "Случилось что-то странное, попробуйте начать сначала, введя команду /registration")
 
 
@@ -202,7 +189,7 @@ def command_start(m):
     if config['STATISTIC_TOKEN'] != '':
         track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'start')
     else:
-        logger.info('start', extra={'userid': m.chat.id})
+        logger.info('start')
 
     cid = m.chat.id
     command_help(m)
@@ -216,7 +203,7 @@ def command_start(m):
             bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
             registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
     except BaseException as e:
-        logger.warning('command start: {0}'.format(str(e)), extra={'userid': cid})
+        logger.warning('command start: {0}'.format(str(e)))
         bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
                          reply_markup=get_date_keyboard())
 
@@ -228,7 +215,7 @@ def command_help(m):
     if config['STATISTIC_TOKEN'] != '':
         track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'help')
     else:
-        logger.info('help', extra={'userid': m.chat.id})
+        logger.info('help')
 
     cid = m.chat.id
     help_text = "Доступны следующие команды: \n"
@@ -256,7 +243,7 @@ def command_send_report(m):
     if config['STATISTIC_TOKEN'] != '':
         track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'report')
     else:
-        logger.info('report', extra={'userid': m.chat.id})
+        logger.info('report')
 
     cid = m.chat.id
     data = m.text.split("/send_report")
@@ -283,7 +270,7 @@ def command_auto_posting_on(m):
     if config['STATISTIC_TOKEN'] != '':
         track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'auto_posting_on')
     else:
-        logger.info('auto_posting_on', extra={'userid': m.chat.id})
+        logger.info('auto_posting_on')
 
     cid = m.chat.id
 
@@ -315,7 +302,7 @@ def command_auto_posting_on(m):
             bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
             registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
     except BaseException as e:
-        logger.warning('command auto_posting_on: {0}'.format(str(e)), extra={'userid': cid})
+        logger.warning('command auto_posting_on: {0}'.format(str(e)))
         bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
 
 
@@ -325,7 +312,7 @@ def command_auto_posting_off(m):
     if config['STATISTIC_TOKEN'] != '':
         track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'auto_posting_off')
     else:
-        logger.info('auto_posting_off', extra={'userid': m.chat.id})
+        logger.info('auto_posting_off')
 
     cid = m.chat.id
 
@@ -342,7 +329,7 @@ def command_auto_posting_off(m):
             bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
             registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
     except BaseException as e:
-        logger.warning('command auto_posting_off: {0}'.format(str(e)), extra={'userid': cid})
+        logger.warning('command auto_posting_off: {0}'.format(str(e)))
         bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
 
 
@@ -398,7 +385,7 @@ def response_msg(m):
         if config['STATISTIC_TOKEN'] != '':
             track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'schedule')
         else:
-            logger.info('message: {0}'.format(m.text), extra={'userid': m.chat.id})
+            logger.info('message: {0}'.format(m.text))
 
         # По умолчанию week_type равен -1 и при таком значении будут выводится все занятия, 
         # т.е и для чётных и для нечётных недель
@@ -448,7 +435,7 @@ def response_msg(m):
                     bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
                     registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
             except BaseException as e:
-                logger.warning('response_msg: {0}'.format(str(e)), extra={'userid': cid})
+                logger.warning('response_msg: {0}'.format(str(e)))
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
     elif m.text == "Экзамены":
         exams(m)
@@ -457,27 +444,41 @@ def response_msg(m):
         if config['STATISTIC_TOKEN'] != '':
             track(config['STATISTIC_TOKEN'], m.chat.id, m.text, 'unknown')
         else:
-            logger.info('unknown message: {0}'.format(m.text), extra={'userid': m.chat.id})
+            logger.info('unknown message: {0}'.format(m.text))
 
         bot.send_message(cid, "Неизвестная команда", reply_markup=get_date_keyboard())
 
+app = flask.Flask(__name__)
 
-# Remove webhook, it fails sometimes the set if there is a previous webhook
-bot.remove_webhook()
 
-# Set webhook
-bot.set_webhook(url=WEBHOOK_URL_BASE+WEBHOOK_URL_PATH,
-                certificate=open(config["WEBHOOK_SSL_CERT"], 'r'))
+# Empty webserver index, return nothing, just http 200
+@app.route('/', methods=['GET', 'HEAD'])
+def index():
+    return ''
 
-# Build ssl context
-context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-context.load_cert_chain(config["WEBHOOK_SSL_CERT"], config["WEBHOOK_SSL_PRIV"])
 
-# Start aiohttp server
-web.run_app(
-    app,
-    host=config["WEBHOOK_LISTEN"],
-    port=config["WEBHOOK_PORT"],
-    ssl_context=context,
-    access_log=None
-)
+@app.route("/reset_webhook", methods=["GET", "HEAD"])
+def reset_webhook():
+    bot.remove_webhook()
+    bot.set_webhook(url=WEBHOOK_URL_BASE+WEBHOOK_URL_PATH, certificate=open(config["WEBHOOK_SSL_CERT"], 'r'))
+    return "OK", 200
+
+
+# Process webhook calls
+@app.route(WEBHOOK_URL_PATH, methods=['POST'])
+def webhook():
+    if flask.request.headers.get('content-type') == 'application/json':
+        json_string = flask.request.get_data().decode('utf-8')
+        update = telebot.types.Update.de_json(json_string)
+        bot.process_new_updates([update])
+        return ''
+    else:
+        flask.abort(403)
+
+if __name__ == '__main__':
+    # Start flask server
+    app.run(
+        host=config["WEBHOOK_LISTEN"],
+        port=config["WEBHOOK_PORT"],
+        ssl_context=(config['WEBHOOK_SSL_CERT'], config['WEBHOOK_SSL_PRIV']),
+        debug=True)
