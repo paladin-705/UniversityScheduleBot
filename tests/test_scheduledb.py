@@ -32,6 +32,14 @@ class TestScheduleDB(unittest.TestCase):
         self.assertTrue(self.db.add_lesson(
             tag, day, number, week_type, time_start, time_end, title, classroom, lecturer))
 
+    def test_add_exam(self):
+        tag = "dcc7ca1233b33ac0429f0c0aa1fce4"
+        day = "12.12.2012"
+        title = "test_exam_title"
+        classroom = "test_classroom"
+        lecturer = "test_lecturer"
+        self.assertTrue(self.db.add_exam(tag, title, classroom, lecturer, day))
+
     def test_add_report(self):
         cid = 111111111
         report = "test report"

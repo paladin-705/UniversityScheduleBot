@@ -60,7 +60,7 @@ class ScheduleDB:
             self.cur.execute("INSERT INTO examinations(tag, title, classroom, lecturer, day) VALUES(%s,%s,%s,%s,%s);",
                              (tag, title, classroom, lecturer, day))
             self.con.commit()
-            return tag
+            return True
         except BaseException as e:
             self.logger.warning("Add exam failed. Error: {0}. Data:\
                             tag={1},\
@@ -68,6 +68,7 @@ class ScheduleDB:
                             classroom={3},\
                             lecturer={4},\
                             day={5}".format(str(e), tag, title, classroom, lecturer, day))
+            return False
 
     def add_organization(self, organization, faculty, group):
         tag = self.create_tag(organization, faculty, group)
