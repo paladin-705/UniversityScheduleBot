@@ -21,7 +21,8 @@ Wiki проекта: [UniversityScheduleBot Wiki](https://github.com/paladin-705
     ├── scheduledb.py                     # Класс для работы с БД
     ├── setup.py                          # Скрипт для создания файла настроек и директорий
     ├── setup_db.py                       # Скрипт для настройки БД
-    ├── UniversityScheduleBot.py 
+    ├── UniversityScheduleBot.py
+    ├── auto_posting_thread.py
     ├── .travis.yml
     ├── .gitignore  
     ├── schema.sql                        # Схема базы данных
@@ -92,6 +93,13 @@ python3 UniversityScheduleBot.py &
  4. Запустите setup_db.py
  5. Запустите UniversityScheduleBot.py
  6. Установите вебхук, открыв браузер и перейдя по адресу: <WEBHOOK_HOST>:<WEBHOOK_PORT>/reset_webhook
+
+Включение автоматической отправки расписания
+------------
+Автоматическая отправка распсиания вынесена в отдельный файл auto_posting_thread.py. Для того, чтобы включить автоматическую отправку расписания нужно запустить этот файл:
+```shell
+python3 auto_posting_thread.py &
+```
 
 Настройка сбора статистики
 ------------
