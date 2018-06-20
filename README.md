@@ -5,6 +5,7 @@ UniversityScheduleBot
 Wiki проекта: [UniversityScheduleBot Wiki](https://github.com/paladin-705/UniversityScheduleBot/wiki)
 
 ![Build Status](https://travis-ci.org/paladin-705/UniversityScheduleBot.svg?branch=master)
+[![Maintainability](https://api.codeclimate.com/v1/badges/dc51667700670e46bdf2/maintainability)](https://codeclimate.com/github/paladin-705/UniversityScheduleBot/maintainability)
 
 Структура репозитория
 ------------
