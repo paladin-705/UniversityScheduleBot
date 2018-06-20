@@ -37,6 +37,7 @@ commands = {  # Описание команд используещееся в к
 #  BOT HANDLERS
 # -------------------------------------
 
+
 # handle the "/registration" command
 @bot.message_handler(commands=['registration'])
 def command_registration(m):
@@ -45,47 +46,6 @@ def command_registration(m):
         logger.info('registration')
 
     registration("reg:stage 1: none", m.chat.id, m.chat.first_name, m.chat.username)
-
-
-@bot.callback_query_handler(func=lambda call: True)
-def callback_handler(call):
-    cid = call.message.chat.id
-
-    try:
-        callback_data = re.split(r':', call.data)
-        call_type = callback_data[0]
-
-        if call_type == "reg":
-            registration(call.data, cid, call.message.chat.first_name, call.message.chat.username)
-
-        if call_type == "ap":
-            # Проверка на соответствие введённых пользователем данных принятому формату
-            if len(callback_data) != 4:
-                bot.send_message(cid,
-                                 "Вы отправили пустую строку или строку неправильного формата. Правильный формат ЧЧ:ММ",
-                                 reply_markup=get_date_keyboard())
-                return
-
-            hour = ''.join(filter(lambda x: x.isdigit(), callback_data[1]))
-            minutes = ''.join(filter(lambda x: x.isdigit(), callback_data[2]))
-            is_today = callback_data[3]
-
-            # Проверка на соответствие введённых пользователем данных принятому формату
-            if not hour.isdigit() or not minutes.isdigit():
-                bot.send_message(cid,
-                                 "Вы отправили пустую строку или строку неправильного формата. Правильный формат ЧЧ:ММ",
-                                 reply_markup=get_date_keyboard())
-                return
-
-            with ScheduleDB(config) as db:
-                if db.set_auto_post_time(cid, (hour + ":" + minutes + ":" + "00").rjust(8, '0'), is_today):
-                    bot.send_message(cid, "Время установлено", reply_markup=get_date_keyboard())
-                else:
-                    bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
-                                     reply_markup=get_date_keyboard())
-    except BaseException as e:
-        logger.warning('command auto_posting_off: {0}'.format(str(e)))
-        bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
 
 
 def registration(data, cid, name, username):
@@ -444,6 +404,62 @@ def response_msg(m):
             logger.info('unknown message: {0}'.format(m.text))
 
         bot.send_message(cid, "Неизвестная команда", reply_markup=get_date_keyboard())
+
+
+# -------------------------------------
+#  BOT CALLBACKS
+# -------------------------------------
+
+
+@bot.callback_query_handler(func=lambda call: "reg:" in call.message.text)
+def callback_registration(call):
+    cid = call.message.chat.id
+
+    try:
+        callback_data = re.split(r':', call.data)
+
+        registration(call.data, cid, call.message.chat.first_name, call.message.chat.username)
+
+    except BaseException as e:
+        logger.warning('callback_registration: {0}'.format(str(e)))
+        bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
+
+
+@bot.callback_query_handler(func=lambda call: "ap:" in call.message.text)
+def callback_auto_posting(call):
+    cid = call.message.chat.id
+
+    try:
+        callback_data = re.split(r':', call.data)
+
+        # Проверка на соответствие введённых пользователем данных принятому формату
+        if len(callback_data) != 4:
+            bot.send_message(cid,
+                             "Вы отправили пустую строку или строку неправильного формата. Правильный формат ЧЧ:ММ",
+                             reply_markup=get_date_keyboard())
+            return
+
+        hour = ''.join(filter(lambda x: x.isdigit(), callback_data[1]))
+        minutes = ''.join(filter(lambda x: x.isdigit(), callback_data[2]))
+        is_today = callback_data[3]
+
+        # Проверка на соответствие введённых пользователем данных принятому формату
+        if not hour.isdigit() or not minutes.isdigit():
+            bot.send_message(cid,
+                             "Вы отправили пустую строку или строку неправильного формата. Правильный формат ЧЧ:ММ",
+                             reply_markup=get_date_keyboard())
+            return
+
+        with ScheduleDB(config) as db:
+            if db.set_auto_post_time(cid, (hour + ":" + minutes + ":" + "00").rjust(8, '0'), is_today):
+                bot.send_message(cid, "Время установлено", reply_markup=get_date_keyboard())
+            else:
+                bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
+                                 reply_markup=get_date_keyboard())
+    except BaseException as e:
+        logger.warning('callback_auto_posting: {0}'.format(str(e)))
+        bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
+
 
 # -------------------------------------
 #  FLASK ROUTES
