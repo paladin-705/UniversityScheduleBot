@@ -1,14 +1,6 @@
 # -*- coding: utf-8 -*-
 import configparser
 import os
-import psycopg2
-
-
-def init_db(name, user, pasw, host, schema_path):
-    with psycopg2.connect(dbname=name, user=user, password=pasw, host=host) as db:
-        with open(schema_path, "r") as f:
-            db.cursor().execute(f.read())
-        db.commit()
 
 
 if __name__ == "__main__":
@@ -20,8 +12,11 @@ if __name__ == "__main__":
         config.read(current_path + '/' + "config.ini")
     else:
         config['DEFAULT'] = {'TOKEN': 'место для токена',
-                             'PROXY_IP': '127.0.0.1',
-                             'PROXY_PORT': '80',
+                             'WEBHOOK_HOST': '',
+                             'WEBHOOK_PORT': '',
+                             'WEBHOOK_LISTEN': '0.0.0.0',
+                             'WEBHOOK_SSL_CERT': '',
+                             'WEBHOOK_SSL_PRIV': '',
                              'DB_NAME': 'название базы данных',
                              'DB_HOST': 'адрес БД',
                              'DB_USER': 'пользователь для работы с БД',
@@ -38,14 +33,3 @@ if __name__ == "__main__":
         os.makedirs(config["DEFAULT"]["LOG_DIR_PATH"])
     except OSError:
         pass
-
-    # Настройка базы данных
-    try:
-        init_db(
-            name=config["DEFAULT"]["DB_NAME"],
-            user=config["DEFAULT"]["DB_USER"],
-            pasw=config["DEFAULT"]["DB_PASSWORD"],
-            host=config["DEFAULT"]["DB_HOST"],
-            schema_path=current_path + "/" + "schema.sql")
-    except BaseException as e:
-        print(str(e))

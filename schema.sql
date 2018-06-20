@@ -40,4 +40,13 @@ CREATE TABLE reports
   user_id integer,
   report text,
   date date
-)
+);
+
+CREATE TABLE examinations
+(
+  tag character(30),
+  title character(100),
+  classroom character(20),
+  lecturer character(30),
+  day date
+);

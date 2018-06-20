@@ -1,8 +1,6 @@
 language: python
 
 python:
-    - "3.3"
-    - "3.4"
     - "3.5"
     
 services:
@@ -16,5 +14,6 @@ before_script:
 
 script:
     - python setup.py
+    - python setup_db.py
     - python -m unittest discover tests
 

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from functools import lru_cache
 
-from config import config, daysOfWeek_rus
+from config import config
+from helpers import daysOfWeek_rus
 import scheduledb
 
 
