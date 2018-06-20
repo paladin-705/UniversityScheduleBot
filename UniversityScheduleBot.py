@@ -438,9 +438,10 @@ def callback_registration(call):
 
         group_id = callback_data[2]
 
-        with ScheduleDB(config) as db:
-            row = db.get_group(group_id)
-            user = db.find_user(cid)
+        db = ScheduleDB(config)
+
+        row = db.get_group(group_id)
+        user = db.find_user(cid)
 
         if user:
             db.update_user(cid, call.message.chat.first_name, call.message.chat.username, str(row[0][1]))
