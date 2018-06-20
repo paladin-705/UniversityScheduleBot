@@ -90,6 +90,27 @@ class TestScheduleDB(unittest.TestCase):
         users = self.db.find_users_where(auto_posting_time="08:30:00")
         self.assertEqual([(user_data[0][0], user_data[0][3]), (user_data[1][0], user_data[1][3])], users)
 
+    def test_get_exams(self):
+        real_data = [('09.12.2012', 'text_exam_1'.ljust(100), 'cr_401'.ljust(20), 'lect_1'.ljust(30)),
+                     ('10.12.2012', 'text_exam_2'.ljust(100), 'cr_402'.ljust(20), 'lect_2'.ljust(30)),
+                     ('11.12.2012', 'text_exam_3'.ljust(100), 'cr_403'.ljust(20), 'lect_3'.ljust(30)),
+                     ('12.12.2012', 'text_exam_4'.ljust(100), 'cr_404'.ljust(20), 'lect_4'.ljust(30))]
+
+        tag = 'dcc7ca1233b33ac0429f0c0aa1fce4'
+        wrong_tag = '2e93e910b8dde740429f0c0aa7d7d9'
+
+        self.db.add_exam(wrong_tag, 'wrong_text_exam_1', 'cr_401', 'lect_1', '11.12.2012')
+        self.db.add_exam(wrong_tag, 'wrong_text_exam_2', 'cr_402', 'lect_2', '12.12.2012')
+
+        self.db.add_exam(tag, 'text_exam_1', 'cr_401', 'lect_1', '09.12.2012')
+        self.db.add_exam(tag, 'text_exam_2', 'cr_402', 'lect_2', '10.12.2012')
+        self.db.add_exam(tag, 'text_exam_3', 'cr_403', 'lect_3', '11.12.2012')
+        self.db.add_exam(tag, 'text_exam_4', 'cr_404', 'lect_4', '12.12.2012')
+
+        data = self.db.get_exams(tag)
+
+        self.assertEqual(real_data, data)
+
     def test_get_schedule_all_week_types(self):
         real_data = [(1, 'ma_lesson_1'.ljust(100), 'cr_401'.ljust(20), 2),
                      (2, 'mo_lesson_2'.ljust(100), 'cr_402'.ljust(20), 0),
