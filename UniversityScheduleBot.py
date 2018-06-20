@@ -411,7 +411,7 @@ def response_msg(m):
 # -------------------------------------
 
 
-@bot.callback_query_handler(func=lambda call: "reg:" in call.message.text)
+@bot.callback_query_handler(func=lambda call: "reg:" in call.data)
 def callback_registration(call):
     cid = call.message.chat.id
 
@@ -425,7 +425,7 @@ def callback_registration(call):
         bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
 
 
-@bot.callback_query_handler(func=lambda call: "ap:" in call.message.text)
+@bot.callback_query_handler(func=lambda call: "ap:" in call.data)
 def callback_auto_posting(call):
     cid = call.message.chat.id
 
