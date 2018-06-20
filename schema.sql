@@ -40,7 +40,7 @@ CREATE TABLE reports
   user_id integer,
   report text,
   date date
-)
+);
 
 CREATE TABLE examinations
 (
@@ -49,4 +49,4 @@ CREATE TABLE examinations
   classroom character(20),
   lecturer character(30),
   day date
-)
+);
