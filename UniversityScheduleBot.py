@@ -206,20 +206,24 @@ def command_auto_posting_off(m):
     try:
         db = ScheduleDB(config)
         user = db.find_user(cid)
-        if user:
-            if db.set_auto_post_time(cid, None, None):
-                bot.send_message(cid, "Автоматическая отправка расписания успешно отключена")
-            else:
-                bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
-                                 reply_markup=get_date_keyboard())
-        else:
+        if not user:
             bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
             command_registration(m)
+            return
+
+        if db.set_auto_post_time(cid, None, None):
+            bot.send_message(cid, "Автоматическая отправка расписания успешно отключена")
+        else:
+            bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
+                             reply_markup=get_date_keyboard())
+
     except BaseException as e:
         logger.warning('command auto_posting_off: {0}'.format(str(e)))
         bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
 
 
+# exams message handler
+@bot.message_handler(func=lambda message: 'Экзамены' in message.text, content_types=['text'])
 def exams(m):
     cid = m.chat.id
 
@@ -324,8 +328,6 @@ def response_msg(m):
             except BaseException as e:
                 logger.warning('response_msg: {0}'.format(str(e)))
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
-    elif m.text == "Экзамены":
-        exams(m)
     else:
         # Статистика
         if config['STATISTIC_TOKEN'] != '':
