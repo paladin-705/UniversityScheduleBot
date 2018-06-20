@@ -55,6 +55,20 @@ class ScheduleDB:
                 str(e), tag, day, number, week_type, time_start, time_end, title, classroom, lecturer))
             return False
 
+    def add_exam(self, tag, title, classroom, lecturer, day):
+        try:
+            self.cur.execute("INSERT INTO examinations(tag, title, classroom, lecturer, day) VALUES(%s,%s,%s,%s,%s);",
+                             (tag, title, classroom, lecturer, day))
+            self.con.commit()
+            return tag
+        except BaseException as e:
+            self.logger.warning("Add exam failed. Error: {0}. Data:\
+                            tag={1},\
+                            title={2},\
+                            classroom={3},\
+                            lecturer={4},\
+                            day={5}".format(str(e), tag, title, classroom, lecturer, day))
+
     def add_organization(self, organization, faculty, group):
         tag = self.create_tag(organization, faculty, group)
         try:
