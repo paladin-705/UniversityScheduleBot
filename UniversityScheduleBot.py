@@ -41,99 +41,29 @@ commands = {  # Описание команд используещееся в к
 # handle the "/registration" command
 @bot.message_handler(commands=['registration'])
 def command_registration(m):
-    # Статистика
-    if config['STATISTIC_TOKEN'] == '':
-        logger.info('registration')
-
-    registration("reg:stage 1: none", m.chat.id, m.chat.first_name, m.chat.username)
-
-
-def registration(data, cid, name, username):
-    # Парсинг сообщения указывающего стадию регистрации
-    # reg : stage : tag
-    callback_data = re.split(r':', data)
-    stage = callback_data[1]
+    cid = m.chat.id
 
     # Процедура регистрации проходит в четрые этапа:
-    # 1 этап: выбор учебного заведения
+    # 1 этап: выбор учебного заведения <--
     # 2 этап: выбор факультета
     # 3 этап: выбор группы
     # 4 этап: добавление данных о принадлежности пользователя к учебному заведению в БД
     try:
-        db = ScheduleDB(config)
+        # Статистика
+        if config['STATISTIC_TOKEN'] != '':
+            track(config['STATISTIC_TOKEN'], cid, 'stage 1', 'registration-stage-1')
 
-        if stage == "stage 1":
-            # Статистика
-            if config['STATISTIC_TOKEN'] != '':
-                track(config['STATISTIC_TOKEN'], cid, stage, 'registration-stage-1')
+        keyboard = types.InlineKeyboardMarkup()
 
-            keyboard = types.InlineKeyboardMarkup()
-
+        with ScheduleDB(config) as db:
             result = db.get_organizations()
-            for row in result:
-                callback_button = types.InlineKeyboardButton(
-                    text=str(row[0]),
-                    callback_data="reg:stage 2:{0}".format(str(row[1])[:organization_field_length]))
-                keyboard.add(callback_button)
+        for row in result:
+            callback_button = types.InlineKeyboardButton(
+                text=str(row[0]),
+                callback_data="reg:stage 2:{0}".format(str(row[1])[:organization_field_length]))
+            keyboard.add(callback_button)
 
-            bot.send_message(cid, "Выберите университет:", reply_markup=keyboard)
-        elif stage == "stage 2":
-            # Статистика
-            if config['STATISTIC_TOKEN'] != '':
-                track(config['STATISTIC_TOKEN'], cid, stage, 'registration-stage-2')
-
-            keyboard = types.InlineKeyboardMarkup()
-
-            organization_id = callback_data[2]
-            result = db.get_faculty(organization_id)
-            for row in result:
-                callback_button = types.InlineKeyboardButton(
-                    text=str(row[0]),
-                    callback_data="reg:stage 3:{0}".format(
-                        str(row[1])[:organization_field_length + faculty_field_length]))
-                keyboard.add(callback_button)
-
-            bot.send_message(cid, "Выберите факультет:", reply_markup=keyboard)
-        elif stage == "stage 3":
-            # Статистика
-            if config['STATISTIC_TOKEN'] != '':
-                track(config['STATISTIC_TOKEN'], cid, stage, 'registration-stage-3')
-
-            keyboard = types.InlineKeyboardMarkup()
-
-            faculty_id = callback_data[2]
-            result = db.get_group(faculty_id)
-            for row in result:
-                callback_button = types.InlineKeyboardButton(
-                    text=str(row[0]),
-                    callback_data="reg:stage 4:{0}".format(str(row[1])))
-                keyboard.add(callback_button)
-
-            bot.send_message(cid, "Выберите группу:", reply_markup=keyboard)
-        elif stage == "stage 4":
-            # Статистика
-            if config['STATISTIC_TOKEN'] != '':
-                track(config['STATISTIC_TOKEN'], cid, stage, 'registration-stage-4')
-
-            group_id = callback_data[2]
-            row = db.get_group(group_id)
-
-            user = db.find_user(cid)
-            if user:
-                db.update_user(cid, name, username, str(row[0][1]))
-            else:
-                db.add_user(cid, name, username, str(row[0][1]))
-
-            bot.send_message(cid, "Отлично, вы зарегистрировались, ваша группа: " + row[0][0] +
-                             "\nЕсли вы ошиблись, то просто введиде команду /registration и измените данные",
-                             reply_markup=get_date_keyboard())
-            bot.send_message(cid, "Теперь вы можете настроить автоматическую отправку расписания в заданное вами время,"
-                                  " введя команду /auto_posting_on <время>, "
-                                  "где <время> должно иметь формат ЧЧ:ММ")
-        else:
-            # Статистика
-            if config['STATISTIC_TOKEN'] != '':
-                track(config['STATISTIC_TOKEN'], cid, 'unknown stage', 'unknown')
+        bot.send_message(cid, "Выберите университет:", reply_markup=keyboard)
     except BaseException as e:
         logger.warning('Registration problem: {0}'.format(str(e)))
         bot.send_message(cid, "Случилось что-то странное, попробуйте начать сначала, введя команду /registration")
@@ -158,7 +88,7 @@ def command_start(m):
             bot.send_message(cid, "Вы уже добавлены в базу данных", reply_markup=get_date_keyboard())
         else:
             bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
-            registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
+            command_registration(m)
     except BaseException as e:
         logger.warning('command start: {0}'.format(str(e)))
         bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново",
@@ -257,7 +187,7 @@ def command_auto_posting_on(m):
             bot.send_message(cid, "Выберите день на который будет приходить расписание:", reply_markup=keyboard)
         else:
             bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
-            registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
+            command_registration(m)
     except BaseException as e:
         logger.warning('command auto_posting_on: {0}'.format(str(e)))
         bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
@@ -284,7 +214,7 @@ def command_auto_posting_off(m):
                                  reply_markup=get_date_keyboard())
         else:
             bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
-            registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
+            command_registration(m)
     except BaseException as e:
         logger.warning('command auto_posting_off: {0}'.format(str(e)))
         bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
@@ -390,7 +320,7 @@ def response_msg(m):
                         bot.send_message(cid, schedule, reply_markup=get_date_keyboard())
                 else:
                     bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
-                    registration("registration:stage 1: none", cid, m.chat.first_name, m.chat.username)
+                    command_registration(m)
             except BaseException as e:
                 logger.warning('response_msg: {0}'.format(str(e)))
                 bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
@@ -411,16 +341,120 @@ def response_msg(m):
 # -------------------------------------
 
 
-@bot.callback_query_handler(func=lambda call: "reg:" in call.data)
+@bot.callback_query_handler(func=lambda call: "reg:stage 2:" in call.data)
 def callback_registration(call):
     cid = call.message.chat.id
 
+    # Парсинг сообщения указывающего стадию регистрации
+    # reg : stage : tag
+    callback_data = re.split(r':', call.data)
+
+    # Процедура регистрации проходит в четрые этапа:
+    # 1 этап: выбор учебного заведения
+    # 2 этап: выбор факультета <--
+    # 3 этап: выбор группы
+    # 4 этап: добавление данных о принадлежности пользователя к учебному заведению в БД
     try:
-        registration(call.data, cid, call.message.chat.first_name, call.message.chat.username)
+        # Статистика
+        if config['STATISTIC_TOKEN'] != '':
+            track(config['STATISTIC_TOKEN'], cid, 'stage 2', 'registration-stage-2')
+
+        keyboard = types.InlineKeyboardMarkup()
+
+        organization_id = callback_data[2]
+
+        with ScheduleDB(config) as db:
+            result = db.get_faculty(organization_id)
+
+        for row in result:
+            callback_button = types.InlineKeyboardButton(
+                text=str(row[0]),
+                callback_data="reg:stage 3:{0}".format(
+                    str(row[1])[:organization_field_length + faculty_field_length]))
+            keyboard.add(callback_button)
+
+        bot.send_message(cid, "Выберите факультет:", reply_markup=keyboard)
+    except BaseException as e:
+        logger.warning('Registration problem: {0}'.format(str(e)))
+        bot.send_message(cid, "Случилось что-то странное, попробуйте начать сначала, введя команду /registration")
+
+
+@bot.callback_query_handler(func=lambda call: "reg:stage 3:" in call.data)
+def callback_registration(call):
+    cid = call.message.chat.id
+
+    # Парсинг сообщения указывающего стадию регистрации
+    # reg : stage : tag
+    callback_data = re.split(r':', call.data)
+
+    # Процедура регистрации проходит в четрые этапа:
+    # 1 этап: выбор учебного заведения
+    # 2 этап: выбор факультета
+    # 3 этап: выбор группы <--
+    # 4 этап: добавление данных о принадлежности пользователя к учебному заведению в БД
+    try:
+        # Статистика
+        if config['STATISTIC_TOKEN'] != '':
+            track(config['STATISTIC_TOKEN'], cid, 'stage 3', 'registration-stage-3')
+
+        keyboard = types.InlineKeyboardMarkup()
+
+        faculty_id = callback_data[2]
+
+        with ScheduleDB(config) as db:
+            result = db.get_group(faculty_id)
+
+        for row in result:
+            callback_button = types.InlineKeyboardButton(
+                text=str(row[0]),
+                callback_data="reg:stage 4:{0}".format(str(row[1])))
+            keyboard.add(callback_button)
+
+        bot.send_message(cid, "Выберите группу:", reply_markup=keyboard)
+    except BaseException as e:
+        logger.warning('Registration problem: {0}'.format(str(e)))
+        bot.send_message(cid, "Случилось что-то странное, попробуйте начать сначала, введя команду /registration")
+
+
+@bot.callback_query_handler(func=lambda call: "reg:stage 4:" in call.data)
+def callback_registration(call):
+    cid = call.message.chat.id
+
+    # Парсинг сообщения указывающего стадию регистрации
+    # reg : stage : tag
+    callback_data = re.split(r':', call.data)
+
+    # Процедура регистрации проходит в четрые этапа:
+    # 1 этап: выбор учебного заведения
+    # 2 этап: выбор факультета
+    # 3 этап: выбор группы
+    # 4 этап: добавление данных о принадлежности пользователя к учебному заведению в БД <--
+    try:
+        # Статистика
+        if config['STATISTIC_TOKEN'] != '':
+            track(config['STATISTIC_TOKEN'], cid, 'stage 4', 'registration-stage-4')
+
+        group_id = callback_data[2]
+
+        with ScheduleDB(config) as db:
+            row = db.get_group(group_id)
+            user = db.find_user(cid)
+
+        if user:
+            db.update_user(cid, call.message.chat.first_name, call.message.chat.username, str(row[0][1]))
+        else:
+            db.add_user(cid, call.message.chat.first_name, call.message.chat.username, str(row[0][1]))
+
+        bot.send_message(cid, "Отлично, вы зарегистрировались, ваша группа: " + row[0][0] +
+                         "\nЕсли вы ошиблись, то просто введиде команду /registration и измените данные",
+                         reply_markup=get_date_keyboard())
+        bot.send_message(cid, "Теперь вы можете настроить автоматическую отправку расписания в заданное вами время,"
+                              " введя команду /auto_posting_on <время>, "
+                              "где <время> должно иметь формат ЧЧ:ММ")
 
     except BaseException as e:
-        logger.warning('callback_registration: {0}'.format(str(e)))
-        bot.send_message(cid, "Случилось что то странное, попробуйте ввести команду заново")
+        logger.warning('Registration problem: {0}'.format(str(e)))
+        bot.send_message(cid, "Случилось что-то странное, попробуйте начать сначала, введя команду /registration")
 
 
 @bot.callback_query_handler(func=lambda call: "ap:" in call.data)
