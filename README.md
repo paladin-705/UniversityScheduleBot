@@ -78,13 +78,20 @@ python3 setup_db.py
 ```shell
 python3 UniversityScheduleBot.py &
 ```
+Установите вебхук:
+Для этого откройте браузер и перейдите по адресу:
+```shell
+<WEBHOOK_HOST>:<WEBHOOK_PORT>/reset_webhook
+```
+
 ### Windows:
 То же самое, что и для Linux, но без терминала:
  1. Скачайте репозиторий
  2. Запустите setup.py
  3. Скопируйте свой токен, адрес сервера, пути к сертификатам и данные для подключения к PostgreSQL БД в файл config.ini
  4. Запустите setup_db.py
- 4. Запустите UniversityScheduleBot.py
+ 5. Запустите UniversityScheduleBot.py
+ 6. Установите вебхук, открыв браузер и перейдя по адресу: <WEBHOOK_HOST>:<WEBHOOK_PORT>/reset_webhook
 
 Настройка сбора статистики
 ------------
