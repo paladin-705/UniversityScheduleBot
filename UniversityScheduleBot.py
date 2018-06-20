@@ -3,6 +3,7 @@ import logging
 import re
 from datetime import datetime, time, timedelta
 
+import flask
 import telebot
 from telebot import types
 
@@ -11,9 +12,6 @@ from helpers import daysOfWeek, ScheduleType, get_date_keyboard
 from scheduleCreator import create_schedule_text
 from scheduledb import ScheduleDB, organization_field_length, faculty_field_length
 
-import ssl
-import flask
-
 # Статистика
 from statistic import track
 
@@ -21,14 +19,10 @@ WEBHOOK_URL_BASE = "https://{}:{}".format(config["WEBHOOK_HOST"], config["WEBHOO
 WEBHOOK_URL_PATH = "/{}/".format(config["TOKEN"])
 
 bot = telebot.AsyncTeleBot(config["TOKEN"])
+app = flask.Flask(__name__)
 
-
-#logging.basicConfig(format='%(asctime)-15s [ %(levelname)s ] uid=%(userid)s %(message)s',
-#                    filemode='a',
-#                    filename=config["LOG_DIR_PATH"] + "log-{0}.log".format(datetime.now().strftime("%Y-%m-%d")),
-#                    level="INFO")
-#logger = logging.getLogger('bot-logger')
 logger = telebot.logger
+telebot.logger.setLevel(logging.INFO)
 
 commands = {  # Описание команд используещееся в команде "help"
     'start': 'Стартовое сообщение и предложение зарегистрироваться',
@@ -39,6 +33,9 @@ commands = {  # Описание команд используещееся в к
     'auto_posting_off': 'Выключение автоматической отправки расписания'
 }
 
+# -------------------------------------
+#  BOT HANDLERS
+# -------------------------------------
 
 # handle the "/registration" command
 @bot.message_handler(commands=['registration'])
@@ -365,7 +362,7 @@ def exams(m):
             lecturer = ' '.join(str(exam[2]).split())
             classroom = ' '.join(str(exam[3]).split())
 
-            message += title + ' | ' + lecturer + ' | ' + classroom + "\n";
+            message += title + ' | ' + lecturer + ' | ' + classroom + "\n"
             message += "------------\n"
         if len(message) == 0:
             message = 'Похоже расписания экзаменов для вашей группы нет в базе'
@@ -448,7 +445,9 @@ def response_msg(m):
 
         bot.send_message(cid, "Неизвестная команда", reply_markup=get_date_keyboard())
 
-app = flask.Flask(__name__)
+# -------------------------------------
+#  FLASK ROUTES
+# -------------------------------------
 
 
 # Empty webserver index, return nothing, just http 200
