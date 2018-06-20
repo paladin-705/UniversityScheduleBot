@@ -10,7 +10,11 @@ group_field_length = 5
 
 class ScheduleDB:
     def __init__(self, config):
-        self.con = psycopg2.connect(dbname=config["DB_NAME"], user=config["DB_USER"], password=config["DB_PASSWORD"], host=config["DB_HOST"])
+        self.con = psycopg2.connect(
+            dbname=config["DB_NAME"],
+            user=config["DB_USER"],
+            password=config["DB_PASSWORD"],
+            host=config["DB_HOST"])
         self.cur = self.con.cursor()
 
         logging.basicConfig(format='%(asctime)-15s [ %(levelname)s ] %(message)s',
@@ -126,11 +130,13 @@ class ScheduleDB:
     def find_users_where(self, auto_posting_time=None, is_today=None):
         try:
             if auto_posting_time is not None and is_today is not None:
-                self.cur.execute('SELECT id, "scheduleTag" FROM users WHERE auto_posting_time = %s AND is_today = %s  AND type = (%s)',
+                self.cur.execute('SELECT id, "scheduleTag" FROM users \
+                                  WHERE auto_posting_time = %s AND is_today = %s  AND type = (%s)',
                                  (auto_posting_time, is_today, 'tg'))
                 return self.cur.fetchall()
             elif auto_posting_time is not None:
-                self.cur.execute('SELECT id, "scheduleTag" FROM users WHERE auto_posting_time = %s AND type = (%s)',
+                self.cur.execute('SELECT id, "scheduleTag" FROM users \
+                                  WHERE auto_posting_time = %s AND type = (%s)',
                                  (auto_posting_time, 'tg'))
                 return self.cur.fetchall()
             elif is_today is not None:
@@ -148,7 +154,8 @@ class ScheduleDB:
     def get_exams(self, tag):
         exams = []
         try:
-            self.cur.execute("SELECT day, title, classroom, lecturer  FROM examinations WHERE tag = (%s) ORDER BY day", [str(tag)])
+            self.cur.execute("SELECT day, title, classroom, lecturer FROM examinations \
+                              WHERE tag = (%s) ORDER BY day", [str(tag)])
             exams = self.cur.fetchall()
         except BaseException as e:
             self.logger.warning('Select exams failed. Error: {0}. Data: tag={1}'.format(str(e), tag))

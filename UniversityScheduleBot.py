@@ -124,8 +124,8 @@ def registration(data, cid, name, username):
             else:
                 db.add_user(cid, name, username, str(row[0][1]))
 
-            bot.send_message(cid, "Отлично, вы зарегистрировались, ваша группа: " + row[0][0]
-                             + "\nЕсли вы ошиблись, то просто введиде команду /registration и измените данные",
+            bot.send_message(cid, "Отлично, вы зарегистрировались, ваша группа: " + row[0][0] +
+                             "\nЕсли вы ошиблись, то просто введиде команду /registration и измените данные",
                              reply_markup=get_date_keyboard())
             bot.send_message(cid, "Теперь вы можете настроить автоматическую отправку расписания в заданное вами время,"
                                   " введя команду /auto_posting_on <время>, "
@@ -185,7 +185,7 @@ def command_help(m):
                  'причём с учётом типа недели (числитель/знаменатель), но есть один нюанс: если сегодня воскресенье '
                  'или время больше чем 21:30, то выводится расписание на следующий день\n')
     bot.send_message(cid, help_text, reply_markup=get_date_keyboard())
-    
+
     guide_url = 'https://github.com/paladin-705/UniversityScheduleBot/wiki/Guide'
 
     help_text = 'Более подробную инструкцию и описание команд (с инструкциями гифками! ^_^) \
@@ -344,7 +344,7 @@ def response_msg(m):
         else:
             logger.info('message: {0}'.format(m.text))
 
-        # По умолчанию week_type равен -1 и при таком значении будут выводится все занятия, 
+        # По умолчанию week_type равен -1 и при таком значении будут выводится все занятия,
         # т.е и для чётных и для нечётных недель
         week_type = -1
 
@@ -352,7 +352,7 @@ def response_msg(m):
             days = ScheduleType[m.text]
         elif m.text == "Сегодня":
             today = datetime.now()
-            # Если запрашивается расписание на сегодняшний день, 
+            # Если запрашивается расписание на сегодняшний день,
             # то week_type равен остатку от деления на 2 номера недели в году, т.е он определяет чётная она или нечётная
             week_type = (today.isocalendar()[1] + int(config["WEEK_TYPE"])) % 2
 
