@@ -1,5 +1,7 @@
 from telebot import types
 import datetime
+from config import config
+
 
 daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
@@ -44,3 +46,7 @@ def get_date_keyboard():
     date_select.row("Пятница", "Суббота")
 
     return date_select
+
+
+def get_week_type(day):
+    return (day.isocalendar()[1] + int(config["WEEK_TYPE"])) % 2

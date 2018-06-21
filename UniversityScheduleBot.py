@@ -8,7 +8,7 @@ import telebot
 from telebot import types
 
 from config import config
-from helpers import daysOfWeek, ScheduleType, get_date_keyboard
+from helpers import daysOfWeek, ScheduleType, get_date_keyboard, get_week_type
 from scheduleCreator import create_schedule_text
 from scheduledb import ScheduleDB, organization_field_length, faculty_field_length
 
@@ -288,7 +288,7 @@ def response_msg(m):
             today = datetime.now()
             # Если запрашивается расписание на сегодняшний день,
             # то week_type равен остатку от деления на 2 номера недели в году, т.е он определяет чётная она или нечётная
-            week_type = (today.isocalendar()[1] + int(config["WEEK_TYPE"])) % 2
+            week_type = get_week_type(today)
 
             # Если сегодня воскресенье, то показывается расписание на понедельник следующей недели
             # Также в этом случае, как week_type используется тип следующей недели
@@ -299,11 +299,11 @@ def response_msg(m):
             days = [daysOfWeek[datetime.weekday(today)]]
         elif m.text == 'Завтра':
             tomorrow = datetime.now()
+            tomorrow += timedelta(days=1)
             # Если запрашивается расписание на сегодняшний день,
             # то week_type равен остатку от деления на 2 номера недели в году, т.е он определяет чётная она или нечётная
-            week_type = (tomorrow.isocalendar()[1] + int(config["WEEK_TYPE"])) % 2
+            week_type = get_week_type(tomorrow)
 
-            tomorrow += timedelta(days=1)
             # Если сегодня воскресенье, то показывается расписание на понедельник следующей недели
             # Также в этом случае, как week_type используется тип следующей недели
             if datetime.weekday(tomorrow) == 6:

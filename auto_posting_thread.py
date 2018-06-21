@@ -6,7 +6,7 @@ from time import sleep
 import telebot
 
 from config import config
-from helpers import daysOfWeek, get_date_keyboard
+from helpers import daysOfWeek, get_date_keyboard, get_week_type
 from scheduleCreator import create_schedule_text
 from scheduledb import ScheduleDB
 
@@ -25,7 +25,7 @@ logger = logging.getLogger('bot-logger')
 
 def auto_posting(current_time):
     today = datetime.now()
-    week_type = (today.isocalendar()[1] + int(config["WEEK_TYPE"])) % 2
+    week_type = get_week_type(today)
 
     if datetime.weekday(today) == 6:
         today += timedelta(days=1)
