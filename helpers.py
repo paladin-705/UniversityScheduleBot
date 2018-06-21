@@ -1,5 +1,5 @@
 from telebot import types
-import datetime
+from datetime import datetime
 from config import config
 
 
@@ -30,7 +30,7 @@ daysOfWeek_rus = {
 
 
 def get_date_keyboard():
-    now = datetime.datetime.now()
+    now = datetime.now()
 
     date_select = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True, one_time_keyboard=False)
 
