@@ -73,7 +73,7 @@ def tomorrow_schedule(current_time):
         tomorrow += timedelta(days=1)
         week_type = (week_type + 1) % 2
 
-    day = [daysOfWeek[datetime.weekday(week_type)]]
+    day = [daysOfWeek[datetime.weekday(tomorrow)]]
 
     auto_posting(current_time, day, week_type, is_today=False)
 
