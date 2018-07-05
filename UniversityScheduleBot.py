@@ -84,7 +84,7 @@ def command_start(m):
     try:
         with ScheduleDB(config) as db:
             user = db.find_user(cid)
-        if user and user[0] != "":
+        if user and user[0] is not None:
             bot.send_message(cid, "Вы уже добавлены в базу данных", reply_markup=get_date_keyboard())
         else:
             bot.send_message(cid, "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации")
@@ -173,7 +173,7 @@ def command_auto_posting_on(m):
     try:
         db = ScheduleDB(config)
         user = db.find_user(cid)
-        if user and user[0] != "":
+        if user and user[0] is not None:
             keyboard = types.InlineKeyboardMarkup()
             callback_button = types.InlineKeyboardButton(
                 text="На Сегодня",
@@ -234,7 +234,7 @@ def exams(m):
     try:
         with ScheduleDB(config) as db:
             user = db.find_user(cid)
-        if not user or user[0] == '':
+        if not user or user[0] is None:
             message = "Вас ещё нет в базе данных, поэтому пройдите простую процедуру регистрации:\n"
             message += 'Введите команду(без кавычек):\n\nрегистрация "название вуза" "факультет" "группа"\n\n'
             message += 'Если вы допустите ошибку, то просто наберите команду заново.\n'
@@ -318,7 +318,7 @@ def response_msg(m):
             try:
                 with ScheduleDB(config) as db:
                     user = db.find_user(cid)
-                if user and user[0] != "":
+                if user and user[0] is not None:
                     result = create_schedule_text(user[0], day, week_type)
                     for schedule in result:
                         bot.send_message(cid, schedule, reply_markup=get_date_keyboard())
