@@ -8,8 +8,8 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
 
     current_path = os.path.abspath(os.path.dirname(__file__))
-    if os.path.exists(current_path + '/../' + "config.ini"):
-        config.read(current_path + '/../' + "config.ini")
+    if os.path.exists(current_path + '/' + "config.ini"):
+        config.read(current_path + '/' + "config.ini")
     else:
         config['DEFAULT'] = {'TOKEN': 'место для токена',
                              'WEBHOOK_HOST': '',
@@ -21,11 +21,11 @@ if __name__ == "__main__":
                              'DB_HOST': 'адрес БД',
                              'DB_USER': 'пользователь для работы с БД',
                              'DB_PASSWORD': 'пароль пользователя',
-                             'LOG_DIR_PATH': current_path + '/../' + 'log' + '/',
+                             'LOG_DIR_PATH': current_path + '/' + 'log' + '/',
                              'WEEK_TYPE': '0',
                              'STATISTIC_TOKEN': ''
                              }
-        with open(current_path + '/../' + 'config.ini', 'w') as configfile:
+        with open(current_path + '/' + 'config.ini', 'w') as configfile:
             config.write(configfile)
 
     # Создание директорий
