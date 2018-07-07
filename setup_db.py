@@ -15,6 +15,6 @@ try:
         user=config.config["DB_USER"],
         pasw=config.config["DB_PASSWORD"],
         host=config.config["DB_HOST"],
-        schema_path=config.current_path + "/../" + "schema.sql")
+        schema_path=config.current_path + "/" + "schema.sql")
 except BaseException as e:
     print(str(e))
