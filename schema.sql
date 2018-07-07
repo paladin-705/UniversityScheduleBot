@@ -29,7 +29,8 @@ CREATE TABLE users
   username character(30),
   "scheduleTag" character(30),
   auto_posting_time time without time zone,
-  is_today boolean
+  is_today boolean,
+  registration_timestamp timestamp with time zone DEFAULT now()
 );
 
 
