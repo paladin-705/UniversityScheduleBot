@@ -246,7 +246,7 @@ STATISTIC_TOKEN = 'место для ключа'
 			"number": 1,
 			"week_type": 0,
 			"title": "Переворачивание пингвинов",
-			"classroom": "Антарктида"
+			"classroom": "Антарктида",
 			"lecturer": "Пингвин",
 			"time_start": "08:30",
 			"time_end": "09:15",
