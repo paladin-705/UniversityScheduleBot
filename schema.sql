@@ -6,6 +6,7 @@ CREATE TABLE organizations
   studgroup character(20),
   tag character(30)
 );
+ALTER TABLE public.organizations ADD CONSTRAINT constraint_tag UNIQUE (tag);
 
 CREATE TABLE schedule
 (
