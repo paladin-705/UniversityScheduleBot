@@ -241,7 +241,7 @@ STATISTIC_TOKEN = 'место для ключа'
 	"key": "key-test",
 	"data": [
 		{
-			"tag": "c3e6dc0f7225b28e3b0c44298a68f2 ",
+			"tag": "c3e6dc0f7225b28e3b0c44298a68f2",
 			"day": "Monday",
 			"number": 1,
 			"week_type": 0,
@@ -252,7 +252,7 @@ STATISTIC_TOKEN = 'место для ключа'
 			"time_end": "09:15",
 		},
 		{
-			 "tag": "9937b02f18e3ca7043a71877484989 ",
+			 "tag": "9937b02f18e3ca7043a71877484989",
 			 "day": "Tuesday",
 			 "number": 2,
 			 "week_type": 1,
@@ -279,7 +279,7 @@ STATISTIC_TOKEN = 'место для ключа'
 {
 	"failed": [
 		{
-			 "tag": "9937b02f18e3ca7043a71877484989 ",
+			 "tag": "9937b02f18e3ca7043a71877484989",
 			 "day": "Tuesday",
 			 "number": 2,
 			 "week_type": 1,
