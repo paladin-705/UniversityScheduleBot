@@ -545,7 +545,7 @@ def add_organization():
     try:
         content = request.get_json()
 
-        if content['key'] != 'key-test':
+        if content['key'] != config["TOKEN"]:
             return "invalid api key", 403
 
         data = content['data']
@@ -588,7 +588,7 @@ def add_schedule():
     try:
         content = request.get_json()
 
-        if content['key'] != 'key-test':
+        if content['key'] != config["TOKEN"]:
             return "invalid api key", 403
 
         data = content['data']
