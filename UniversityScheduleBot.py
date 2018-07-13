@@ -4,6 +4,8 @@ import re
 from datetime import datetime, time, timedelta
 
 import flask
+from flask import request, jsonify
+
 import telebot
 from telebot import types
 
@@ -507,12 +509,14 @@ def index():
     return ''
 
 
+# Убирает вебхук
 @app.route("/remove_webhook", methods=["GET", "HEAD"])
 def remove_webhook():
     bot.remove_webhook()
     return "ok", 200
 
 
+# Сбрасывает вебхук
 @app.route("/reset_webhook", methods=["GET", "HEAD"])
 def reset_webhook():
     bot.remove_webhook()
@@ -520,7 +524,7 @@ def reset_webhook():
     return "ok", 200
 
 
-# Process webhook calls
+# Обработка запросов к вебхуку
 @app.route(WEBHOOK_URL_PATH, methods=['POST'])
 def webhook():
     if flask.request.headers.get('content-type') == 'application/json':
@@ -530,6 +534,87 @@ def webhook():
         return ''
     else:
         flask.abort(403)
+
+
+# Добавление организации в базу данных
+@app.route("/api/organization", methods=["POST"])
+def add_organization():
+    if not request.is_json:
+        return "incorrect request", 403
+
+    try:
+        content = request.get_json()
+
+        if content['key'] != 'key-test':
+            return "invalid api key", 403
+
+        data = content['data']
+
+        answer = {
+            'ok': [],
+            'failed': []}
+
+        with ScheduleDB(config) as db:
+            for org_data in data:
+                # Обязательные параметры запроса
+                organization = org_data['organization']
+                group = org_data['group']
+
+                # Необязательные параметры
+                faculty = org_data['faculty'] if 'faculty' in org_data else ''
+
+                tag = db.add_organization(organization, faculty, group)
+                json_data = {
+                    'tag': tag,
+                    'data': org_data
+                }
+
+                if tag is not None:
+                    answer['ok'].append(json_data)
+                else:
+                    answer['failed'].append(json_data)
+
+        return jsonify(answer), 200
+    except KeyError as e:
+        return 'key not found: {}'.format(str(e)), 403
+
+
+# Добавление расписания в базу данных
+@app.route("/api/schedule", methods=["POST"])
+def add_schedule():
+    if not request.is_json:
+        return "incorrect request", 403
+
+    try:
+        content = request.get_json()
+
+        if content['key'] != 'key-test':
+            return "invalid api key", 403
+
+        data = content['data']
+
+        answer = {'failed': []}
+        with ScheduleDB(config) as db:
+            for lecture in data:
+                # Обязательные параметры запроса
+                tag = lecture['tag']
+                day = lecture['day']
+                number = lecture['number']
+                week_type = lecture['week_type']
+                title = lecture['title']
+                classroom = lecture['classroom']
+
+                # Необязательные параметры
+                time_start = lecture['time_start'] if 'time_start' in lecture else None
+                time_end = lecture['time_end'] if 'time_end' in lecture else None
+                lecturer = lecture['lecturer'] if 'lecturer' in lecture else None
+
+                if not db.add_lesson(tag, day, number, week_type, time_start, time_end, title, classroom, lecturer):
+                    answer['failed'].append(lecture)
+        return jsonify(answer), 200
+    except KeyError as e:
+        return 'key not found: {}'.format(str(e)), 403
+
 
 if __name__ == '__main__':
     # Start flask server
