@@ -233,10 +233,8 @@ class ScheduleDB:
     def clear_tables(self):
         try:
             self.cur.execute('TRUNCATE users;')
-            self.cur.execute('TRUNCATE organizations;')
-            self.cur.execute('TRUNCATE schedule;')
+            self.cur.execute('TRUNCATE organizations CASCADE;')
             self.cur.execute('TRUNCATE reports;')
-            self.cur.execute('TRUNCATE examinations;')
             self.con.commit()
 
             old_isolation_level = self.con.isolation_level
