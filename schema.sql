@@ -4,14 +4,13 @@ CREATE TABLE organizations
   organization character(80),
   faculty character(80),
   studgroup character(20),
-  tag character(30)
+  tag character(30) PRIMARY KEY
 );
-ALTER TABLE public.organizations ADD CONSTRAINT constraint_tag UNIQUE (tag);
 
 CREATE TABLE schedule
 (
   id serial,
-  tag character(30),
+  tag character(30) REFERENCES organizations (tag),
   day character(10),
   "number" smallint,
   type smallint,
@@ -31,7 +30,8 @@ CREATE TABLE users
   "scheduleTag" character(30),
   auto_posting_time time without time zone,
   is_today boolean,
-  registration_timestamp timestamp with time zone DEFAULT now()
+  registration_timestamp timestamp with time zone DEFAULT now(),
+  PRIMARY KEY (type, id)
 );
 
 
@@ -46,7 +46,7 @@ CREATE TABLE reports
 
 CREATE TABLE examinations
 (
-  tag character(30),
+  tag character(30) REFERENCES organizations (tag),
   title character(100),
   classroom character(20),
   lecturer character(30),
