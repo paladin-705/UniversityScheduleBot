@@ -20,7 +20,7 @@ class TestScheduleDB(unittest.TestCase):
         self.assertEqual(tag, "dcc7ca1233b33ac0429f0c0aa1fce4")
 
     def test_add_lesson(self):
-        tag = "dcc7ca1233b33ac0429f0c0aa1fce4"
+        tag = self.db.add_organization("test_organization", "test_faculty", "test_group")
         day = "Monday"
         number = 1
         week_type = 2
@@ -33,7 +33,7 @@ class TestScheduleDB(unittest.TestCase):
             tag, day, number, week_type, time_start, time_end, title, classroom, lecturer))
 
     def test_add_exam(self):
-        tag = "dcc7ca1233b33ac0429f0c0aa1fce4"
+        tag = self.db.add_organization("test_organization", "test_faculty", "test_group")
         day = "12.12.2012"
         title = "test_exam_title"
         classroom = "test_classroom"
@@ -98,8 +98,8 @@ class TestScheduleDB(unittest.TestCase):
                      (datetime.date(2012, 11, 12), 'text_exam_3'.ljust(100), 'cr_403'.ljust(20), 'lect_3'.ljust(30)),
                      (datetime.date(2012, 12, 12), 'text_exam_4'.ljust(100), 'cr_404'.ljust(20), 'lect_4'.ljust(30))]
 
-        tag = 'dcc7ca1233b33ac0429f0c0aa1fce4'
-        wrong_tag = '2e93e910b8dde740429f0c0aa7d7d9'
+        tag = self.db.add_organization("test_organization", "test_faculty", "test_group")
+        wrong_tag = self.db.add_organization("wrong_organization", "wrong_faculty", "wrong_group")
 
         self.db.add_exam(wrong_tag, 'wrong_text_exam_1', 'cr_401', 'lect_1', '11.12.2012')
         self.db.add_exam(wrong_tag, 'wrong_text_exam_2', 'cr_402', 'lect_2', '12.12.2012')
@@ -119,7 +119,7 @@ class TestScheduleDB(unittest.TestCase):
                      (2, 'me_lesson_2'.ljust(100), 'cr_403'.ljust(20), 1),
                      (3, 'ma_lesson_3'.ljust(100), 'cr_404'.ljust(20), 2)]
 
-        tag = "test_tag_all_week_types"
+        tag = self.db.add_organization("test_organization", "test_faculty", "test_group")
         self.db.add_lesson(tag, "Monday", 1, 2, "08:30", "09:30", "ma_lesson_1", "cr_401", "lect_1")
         self.db.add_lesson(tag, "Monday", 2, 0, "09:30", "10:30", "mo_lesson_2", "cr_402", "lect_2_odd")
         self.db.add_lesson(tag, "Monday", 2, 1, "09:30", "10:30", "me_lesson_2", "cr_403", "lect_2_even")
@@ -135,7 +135,7 @@ class TestScheduleDB(unittest.TestCase):
                      (2, 'mo_lesson_2'.ljust(100), 'cr_402'.ljust(20), 0),
                      (3, 'ma_lesson_3'.ljust(100), 'cr_404'.ljust(20), 2)]
 
-        tag = "test_tag_odd_week_type"
+        tag = self.db.add_organization("test_organization", "test_faculty", "test_group")
         self.db.add_lesson(tag, "Monday", 1, 2, "08:30", "09:30", "ma_lesson_1", "cr_401", "lect_1")
         self.db.add_lesson(tag, "Monday", 2, 0, "09:30", "10:30", "mo_lesson_2", "cr_402", "lect_2_odd")
         self.db.add_lesson(tag, "Monday", 2, 1, "09:30", "10:30", "me_lesson_2", "cr_403", "lect_2_even")
@@ -151,7 +151,7 @@ class TestScheduleDB(unittest.TestCase):
                      (2, 'me_lesson_2'.ljust(100), 'cr_403'.ljust(20), 1),
                      (3, 'ma_lesson_3'.ljust(100), 'cr_404'.ljust(20), 2)]
 
-        tag = "test_tag_even_week_type"
+        tag = self.db.add_organization("test_organization", "test_faculty", "test_group")
         self.db.add_lesson(tag, "Monday", 1, 2, "08:30", "09:30", "ma_lesson_1", "cr_401", "lect_1")
         self.db.add_lesson(tag, "Monday", 2, 0, "09:30", "10:30", "mo_lesson_2", "cr_402", "lect_2_odd")
         self.db.add_lesson(tag, "Monday", 2, 1, "09:30", "10:30", "me_lesson_2", "cr_403", "lect_2_even")
