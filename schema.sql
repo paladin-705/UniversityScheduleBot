@@ -18,7 +18,8 @@ CREATE TABLE schedule
   "endTime" time without time zone,
   title character(100),
   classroom character(20),
-  lecturer character(50)
+  lecturer character(50),
+  PRIMARY KEY (tag, day, number, type)
 );
 
 CREATE TABLE users
