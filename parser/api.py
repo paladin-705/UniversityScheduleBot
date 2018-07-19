@@ -19,8 +19,14 @@ def add_organization(organization, faculty, group):
          ]
          }
     )
-    res = requests.post(url + '/api/organization', json=data, verify=False)
-    answer = json.loads(res.text)
+    try:
+        res = requests.post(url + '/api/organization', json=data, verify=False)
+        answer = json.loads(res.text)
+    except:
+        with open('failed-organization.txt', "a") as file:
+            for d in answer['failed']:
+                file.write(str(d['data']) + '\n')
+        return None
 
     if len(answer['failed']) != 0:
         with open('failed-organization.txt', "a") as file:
@@ -52,8 +58,14 @@ def add_lesson(tag, day, number, week_type, time_start, time_end, title, classro
          ]
          }
     )
-    res = requests.post(url + '/api/schedule', json=data, verify=False)
-    answer = json.loads(res.text)
+    try:
+        res = requests.post(url + '/api/schedule', json=data, verify=False)
+        answer = json.loads(res.text)
+    except:
+        with open('failed-schedule.txt', "a") as file:
+            for d in answer['failed']:
+                file.write(str(d['data']) + '\n')
+        return False
 
     if len(answer['failed']) != 0:
         with open('failed-schedule.txt', "a") as file:
