@@ -35,7 +35,7 @@ if __name__ == "__main__":
             print("{0}:".format(group))
 
             # Знаю что костыли костыльные но а что делать, надо как то выкручиваться
-            if sheet.cell_value(1, col + 2) == "Понедельник":
+            if sheet.cell_value(1, col + 1) == "Понедельник":
                 break
             if group == "":
                 continue
