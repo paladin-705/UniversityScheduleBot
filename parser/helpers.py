@@ -66,7 +66,7 @@ def parse_time(cell_value):
 
 
 def parse_title(cell_value):
-    result = re.split(r'(\w{1,2}\s?\d_\d{3}|\d_\d{3}|\w\.\d)', cell_value)
+    result = re.split(r'(\w{1,2}\s?\d[_-]\d{3}|\d[_-]\d{3}|\w\.\d)', cell_value)
     if len(result) >= 3:
         return result[0]
     else:
@@ -74,7 +74,7 @@ def parse_title(cell_value):
 
 
 def parse_lecturer(cell_value):
-    result = re.split(r'(\w{1,2}\s?\d_\d{3}|\d_\d{3}|\w\.\d)', cell_value)
+    result = re.split(r'(\w{1,2}\s?\d[_-]\d{3}|\d[_-]\d{3}|\w\.\d)', cell_value)
     if len(result) >= 3:
         return result[len(result) - 1]
     else:
@@ -83,7 +83,7 @@ def parse_lecturer(cell_value):
 
 def parse_classroom(cell_value):
     classroom = ""
-    result = re.findall(r'\w{1,2}\s?\d_\d{3}|\d_\d{3}|\w\.\d', cell_value)
+    result = re.findall(r'\w{1,2}\s?\d[_-]\d{3}|\d[_-]\d{3}|\w\.\d', cell_value)
     if len(result) >= 1:
         # Кабинет
         for room in result:
