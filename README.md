@@ -161,13 +161,11 @@ STATISTIC_TOKEN = 'место для ключа'
         {
             "organization": "ВУЗ №1",
             "faculty": "Факультет  №1",
-            "group": "Группа №1",
-
+            "group": "Группа №1"
         },
         {
             "organization": "ВУЗ №2",
-            "group": "Группа №2",
-
+            "group": "Группа №2"
         },
         { ... },
         ...
