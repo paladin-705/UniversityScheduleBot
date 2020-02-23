@@ -3,7 +3,7 @@ import configparser
 import os
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     # Считывание конфигурационного файла или его создание с настройками по умолчанию
     config = configparser.ConfigParser()
 
