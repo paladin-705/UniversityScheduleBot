@@ -8,7 +8,8 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
 
     current_path = os.path.abspath(os.path.dirname(__file__))
-    if os.path.exists(current_path + '/' + "config.ini") == True:
+    path_flg = os.path.exists(current_path + '/' + "config.ini")
+    if path_flg == True:
         config.read(current_path + '/' + "config.ini")
     else:
         config['DEFAULT'] = {'TOKEN': 'место для токена',
