@@ -3,13 +3,12 @@ import configparser
 import os
 
 
-if __name__ == "__main__":
+if (__name__ == "__main__"):
     # Считывание конфигурационного файла или его создание с настройками по умолчанию
     config = configparser.ConfigParser()
 
     current_path = os.path.abspath(os.path.dirname(__file__))
-    path_flg = os.path.exists(current_path + '/' + "config.ini")
-    if path_flg == True:
+    if (os.path.exists(current_path + '/' + "config.ini")):
         config.read(current_path + '/' + "config.ini")
     else:
         config['DEFAULT'] = {'TOKEN': 'место для токена',
