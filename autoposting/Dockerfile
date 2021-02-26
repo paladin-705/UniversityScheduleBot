@@ -22,12 +22,10 @@ RUN apk update \
     && apk add tzdata \
     && apk add git build-base postgresql-dev
 
-COPY deploy requirements.txt ./
+COPY * ./
 
 RUN pip3 install -r requirements.txt \
     && chmod +x deploy
-
-COPY * ./
 
 CMD ./deploy ${DB_NAME} ${DB_USER} ${DB_PASSWORD} ${DB_HOST} \
              ${TELEGRAM_API_TOKEN} \
