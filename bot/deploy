@@ -7,6 +7,9 @@ printf "DB_USER=%s\n"                "$2" >> config.cfg
 printf "DB_PASSWORD=%s\n"            "$3" >> config.cfg
 printf "DB_HOST=%s\n"                "$4" >> config.cfg
 
+printf "WEBHOOK_HOST=%s\n"           "" >> config.cfg
+printf "WEBHOOK_PORT=%s\n"           "" >> config.cfg
+
 printf "TOKEN=%s\n"                  "$5" >> config.cfg
 
 printf "WEEK_TYPE=%u\n"              "$6" >> config.cfg
