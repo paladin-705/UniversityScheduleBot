@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-from helpers import *
+import xlrd
+import xlwt
 from api import add_organization, add_lesson
-import xlwt, xlrd
 from xlutils.copy import copy as xlcopy
-
 
 if __name__ == "__main__":
     print("Enter file name: ")

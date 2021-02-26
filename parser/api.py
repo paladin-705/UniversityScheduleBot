@@ -1,8 +1,9 @@
-from config import url, token
-import requests
 import json
 
+import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
+from config import url, token
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 

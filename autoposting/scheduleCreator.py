@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from functools import lru_cache
 
+import scheduledb
 from config import config
 from helpers import daysOfWeek_rus
-import scheduledb
 
 
 def print_type(raw_type, week_type=-1):

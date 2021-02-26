@@ -1,6 +1,6 @@
-import threading
 import logging
-from datetime import datetime, time, timedelta
+import threading
+from datetime import datetime, timedelta
 from time import sleep
 
 import telebot
@@ -9,8 +9,6 @@ from config import config
 from helpers import daysOfWeek, get_date_keyboard, get_week_type
 from scheduleCreator import create_schedule_text
 from scheduledb import ScheduleDB
-
-# Статистика
 from statistic import track
 
 bot = telebot.AsyncTeleBot(config["TOKEN"])
