@@ -1,18 +1,18 @@
 #!/bin/sh
 
-printf "[%s]\n"                      "DEFAULT" > config.cfg
+printf "[%s]\n"                      "DEFAULT" > config.ini
 
-printf "DB_NAME=%s\n"                "$1" >> config.cfg
-printf "DB_USER=%s\n"                "$2" >> config.cfg
-printf "DB_PASSWORD=%s\n"            "$3" >> config.cfg
-printf "DB_HOST=%s\n"                "$4" >> config.cfg
+printf "DB_NAME=%s\n"                "$1" >> config.ini
+printf "DB_USER=%s\n"                "$2" >> config.ini
+printf "DB_PASSWORD=%s\n"            "$3" >> config.ini
+printf "DB_HOST=%s\n"                "$4" >> config.ini
 
-printf "TOKEN=%s\n"                  "$5" >> config.cfg
+printf "TOKEN=%s\n"                  "$5" >> config.ini
 
-printf "WEEK_TYPE=%u\n"              "$6" >> config.cfg
-printf "STATISTIC_TOKEN=%s\n"        "$7" >> config.cfg
+printf "WEEK_TYPE=%u\n"              "$6" >> config.ini
+printf "STATISTIC_TOKEN=%s\n"        "$7" >> config.ini
 
-printf "LOG_DIR_PATH=%s\n"           "/app/log/" >> config.cfg
+printf "LOG_DIR_PATH=%s\n"           "/app/log/" >> config.ini
 
 cp /usr/share/zoneinfo/${10} /etc/localtime && echo ${8} > /etc/timezone
 
