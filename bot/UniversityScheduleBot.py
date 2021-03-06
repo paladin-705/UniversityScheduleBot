@@ -225,7 +225,7 @@ def command_auto_posting_off(m):
 
 
 # exams message handler
-@bot.message_handler(func=lambda message: 'Экзамены' in message.text, content_types=['text'])
+@bot.message_handler(func=lambda message: 'Экзамены' in (message.text if message.text is not None else ''), content_types=['text'])
 def exams(m):
     cid = m.chat.id
 
