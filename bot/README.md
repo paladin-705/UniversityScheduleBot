@@ -6,9 +6,9 @@
 Docker Hub: [paladin705/telegram_schedule_bot](https://hub.docker.com/r/paladin705/telegram_schedule_bot)
 
 ## Зависимости
-Бот использует Telegram Bot API и Webhook'и для обработки входящих сообщений. Адрес Webhook'а: `http://<WEBHOOK_HOST>:<WEBHOOK_PORT>`. Можно установить Webhook, открыв браузер и перейдя по адресу: http://<WEBHOOK_HOST>:<WEBHOOK_PORT>/reset_webhook.
+Бот использует Telegram Bot API и Webhook'и для обработки входящих сообщений. Адрес Webhook'а: `http://<WEBHOOK_HOST>:<WEBHOOK_PORT>`. Можно установить Webhook, открыв браузер и перейдя по адресу: http://<WEBHOOK_HOST>:<WEBHOOK_PORT>/reset_webhook. Для работы бота, необходимо создать SSL сертификаты для Webhook'а.
 
-Бот реализованный в docker контейнере не имеет прямого доступа к сети и использует сокет `/bot/socket/bot.sock` для обработки запросов. Чтобы передать поступающие запросы боту, можно использовать nginx reverse proxy для передачи их на сокет бота.
+Бот реализованный в docker контейнере не имеет прямого доступа к сети и использует сокет `/bot/socket/bot.sock` для обработки запросов. Чтобы передать поступающие запросы боту, можно использовать nginx reverse proxy для передачи их на сокет бота. Также в настройках nginx reverse proxy необходимо указать пути к SSL сертификатам. Без них, бот работать не будет.
 
 Бот использует СУБД PostgreSQL для хранения данных.
 
@@ -16,6 +16,39 @@ Docker Hub: [paladin705/telegram_schedule_bot](https://hub.docker.com/r/paladin7
 
 * Модуль для автоматической отправки расписания: [autoposting](../autoposting)
 * Модуль для работы с базой данных бота (добавление/изменение/удаление групп и файлов расписания): [api_server](https://github.com/paladin-705/VkScheduleBot/tree/main/api_server)
+
+## Создание SSL сертифкатов с помощью OpenSSL для nginx reverse proxy
+На Linux, создать сертифкаты с помощью OpenSSL можно следующим образом:
+```shell
+openssl genrsa -out webhook_pkey.pem 2048
+openssl req -new -x509 -days 3650 -key webhook_pkey.pem -out webhook_cert.pem
+```
+При вводе пункта Common Name, нужно написать IP адрес сервера, на котором будет запущен бот.
+После завершения создания сертификата, появятся два файла: webhook_pkey.pem и webhook_cert.pem.
+
+Далее представлен пример конфигурации nginx reverse proxy: 
+```shell
+server {
+    listen 8443 ssl;
+    
+    ssl_certificate /usr/src/tg_bot_ssl_certificate/webhook_cert.pem;
+    ssl_certificate_key /usr/src/tg_bot_ssl_certificate/webhook_pkey.pem;
+    
+    location / {
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        proxy_pass http://unix:/usr/src/tg_bot_socket/bot.sock;
+    }
+}
+```
+В примере были использованы следующие настройки и пути к файлам:
+* Порт сервера - `8443`
+* Путь до webhook_cert.pem - `/usr/src/tg_bot_ssl_certificate/webhook_cert.pem`
+* Путь до webhook_pkey.pem - `/usr/src/tg_bot_ssl_certificate/webhook_pkey.pem`
+* Путь до сокета бота - `http://unix:/usr/src/tg_bot_socket/bot.sock`
 
 ## Docker
 Для запуска docker контейнера загружаемого с [Docker Hub](https://hub.docker.com/r/paladin705/telegram_schedule_bot) можно использовать следующую команду:
