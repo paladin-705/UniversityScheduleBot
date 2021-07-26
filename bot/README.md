@@ -44,7 +44,7 @@ docker run \
 * `DB_USER` - Имя пользователя БД
 * `DB_PASSWORD` - Пароль пользователя БД
 * `DB_HOST` - Адрес БД
-* `TELEGRAM_API_TOKEN` - Токе Telegram Bot API
+* `TELEGRAM_API_TOKEN` - Токен Telegram Bot API
 * `STATISTIC_TOKEN` - Токен для отправки статистики на [chatbase.com](https://chatbase.com/). Необязательный параметр (На данный момент не используется - Chatbase прекращает работу 27 сентября 2021 года)
 * `WEEK_TYPE` - Тип первой недели семестра 0 - числитель, 1 - знаменатель
 * `TZ` - Часовой пояс. По умолчанию `Europe/Moscow`
