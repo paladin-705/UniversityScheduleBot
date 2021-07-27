@@ -7,7 +7,7 @@ UniversityScheduleBot
 * Модуль для автоматической отправки расписания: [autoposting](./autoposting)
 * Модуль для работы с базой данных бота (добавление/изменение/удаление групп и файлов расписания): [api_server](https://github.com/paladin-705/VkScheduleBot/tree/main/api_server)
 
-Также бот совместим с ботом для VK ([VkScheduleBot](https://github.com/paladin-705/VkScheduleBot)) - боты могут использовать одну базу данных для хранения расписания и информации о пользователях.
+Также бот совместим с ботом для ВК ([VkScheduleBot](https://github.com/paladin-705/VkScheduleBot)) - боты могут использовать одну базу данных для хранения расписания и информации о пользователях.
 
 Wiki проекта: [UniversityScheduleBot Wiki](https://github.com/paladin-705/UniversityScheduleBot/wiki)
 
