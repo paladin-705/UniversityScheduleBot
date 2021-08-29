@@ -17,6 +17,6 @@ printf "STATISTIC_TOKEN=%s\n"        "$7" >> config.ini
 
 printf "LOG_DIR_PATH=%s\n"           "/bot/log/" >> config.ini
 
-cp /usr/share/zoneinfo/${10} /etc/localtime && echo ${8} > /etc/timezone
+cp /usr/share/zoneinfo/${8} /etc/localtime && echo ${8} > /etc/timezone
 
 gunicorn UniversityScheduleBot:app --workers 4 -b  unix:/bot/socket/bot.sock
