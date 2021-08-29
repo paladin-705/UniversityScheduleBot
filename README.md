@@ -32,6 +32,11 @@ Docker Hub: [paladin705/telegram_schedule_bot_autoposting](https://hub.docker.co
 
 Docker Hub: [paladin705/vk_schedule_bot_api](https://hub.docker.com/r/paladin705/vk_schedule_bot_api)
 
+### Панель управления базой данных бота
+![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/paladin705/vk_schedule_bot_db_control_panel)
+
+Docker Hub: [paladin705/vk_schedule_bot_db_control_panel](https://hub.docker.com/r/paladin705/vk_schedule_bot_db_control_panel)
+
 Структура репозитория
 ------------
     .
