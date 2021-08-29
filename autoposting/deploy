@@ -14,6 +14,6 @@ printf "STATISTIC_TOKEN=%s\n"        "$7" >> config.ini
 
 printf "LOG_DIR_PATH=%s\n"           "/app/log/" >> config.ini
 
-cp /usr/share/zoneinfo/${10} /etc/localtime && echo ${8} > /etc/timezone
+cp /usr/share/zoneinfo/${8} /etc/localtime && echo ${8} > /etc/timezone
 
 python3 auto_posting_thread.py
