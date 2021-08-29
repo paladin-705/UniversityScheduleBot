@@ -20,7 +20,9 @@ WORKDIR /bot
 RUN apk update \
     && apk upgrade \
     && apk add tzdata \
-    && apk add git build-base postgresql-dev
+    && apk add git build-base postgresql-dev \
+    && mkdir log \
+    && mkdir socket
 
 COPY * ./
 
