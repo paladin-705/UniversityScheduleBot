@@ -6,6 +6,7 @@ UniversityScheduleBot
 * Модуль Telegram бота: [UniversityScheduleBot](./bot) - Бот для Telegram показывающий расписание занятий. Основной модуль проекта, осуществляющий обработку пользовательских запросов и формирование ответов на них.  
 * Модуль для автоматической отправки расписания: [autoposting](./autoposting)
 * Модуль для работы с базой данных бота (добавление/изменение/удаление групп и файлов расписания): [api_server](https://github.com/paladin-705/VkScheduleBot/tree/main/api_server)
+* Панель управления базой данных бота: [VkScheduleBot Control Panel](https://github.com/paladin-705/VkScheduleBotDB_ControlPanel). Предоставляет веб-интерфейс для взаимодействия с БД расписания, а также позволяет редактировать пользователей API бота (модуль [api_server](https://github.com/paladin-705/VkScheduleBot/tree/main/api_server)). Панель управления является модулем для [UniversityScheduleBot](./bot) и [VkScheduleBot](https://github.com/paladin-705/VkScheduleBot).
 
 Также бот совместим с ботом для ВК ([VkScheduleBot](https://github.com/paladin-705/VkScheduleBot)) - боты могут использовать одну базу данных для хранения расписания и информации о пользователях.
 
