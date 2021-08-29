@@ -20,7 +20,8 @@ WORKDIR /app
 RUN apk update \
     && apk upgrade \
     && apk add tzdata \
-    && apk add git build-base postgresql-dev
+    && apk add git build-base postgresql-dev \
+    && mkdir log
 
 COPY * ./
 
